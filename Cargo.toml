@@ -6,7 +6,7 @@ authors = ["Guillaume W. Bres <guillaume.bressaix@gmail.com>"]
 description = "GNSS Quality Control traits"
 homepage = "https://github.com/rtk-rs/qc-traits"
 repository = "https://github.com/rtk-rs/qc-traits"
-keywords = ["rinex", "timing", "gps", "glonass", "galileo"]
+keywords = ["gnss", "gps", "geodesy", "geo"]
 categories = ["science", "science::geo"]
 edition = "2021"
 
