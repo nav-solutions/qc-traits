@@ -1,7 +1,7 @@
 GNSS Quality Control Traits
 ===========================
 
-[![Rust](https://github.com/rtk-rs/qc-traits/actions/workflows/rust.yml/badge.svg)](https://github.com/georust/rinex/actions/workflows/rust.yml)
+[![Rust](https://github.com/rtk-rs/qc-traits/actions/workflows/rust.yml/badge.svg)](https://github.com/rtk-rs/qc-traits/actions/workflows/rust.yml)
 [![crates.io](https://docs.rs/gnss-qc-traits/badge.svg)](https://docs.rs/gnss-qc-traits/)
 [![crates.io](https://img.shields.io/crates/d/gnss-qc-traits.svg)](https://crates.io/crates/gnss-qc-traits)
 
