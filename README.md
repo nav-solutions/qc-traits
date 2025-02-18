@@ -17,3 +17,8 @@ our [Quality Control library](https://github.com/rtk-rs/gnss-qc).
 - merge: describes how we stack data into an already existing context
 - processing: available on crate feature only,
 describes a filter designer and processing ops
+
+## Licensing
+
+This libraries is part of the [RTK-rs framework](https://github.com/rtk-rs) which
+is delivered under the [Mozilla V2 Public](https://www.mozilla.org/en-US/MPL/2.0) license.
