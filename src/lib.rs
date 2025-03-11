@@ -2,8 +2,17 @@
 #![doc = include_str!("../README.md")]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
+mod field;
+pub use field::QcField;
+
 mod merge;
 pub use merge::{Error as MergeError, Merge};
+
+mod repair;
+pub use repair::QcRepair;
+
+mod rework;
+pub use rework::QcRework;
 
 #[cfg(feature = "processing")]
 #[cfg_attr(docsrs, doc(cfg(feature = "processing")))]
@@ -12,7 +21,7 @@ mod processing;
 #[cfg(feature = "processing")]
 pub use processing::{
     Decimate, DecimationError, DecimationFilter, DecimationFilterType, Filter, FilterItem,
-    MaskError, MaskFilter, MaskOperand, Masking, Preprocessing, Repair, RepairTrait, Split,
+    MaskError, MaskFilter, MaskOperand, Masking, Preprocessing, Split,
 };
 
 #[cfg(feature = "html")]

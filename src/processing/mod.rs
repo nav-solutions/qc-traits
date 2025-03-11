@@ -36,20 +36,6 @@ pub trait Preprocessing: Masking + Decimate + Split {
     }
 }
 
-/// Repair
-#[derive(Debug, Copy, Clone)]
-pub enum Repair {
-    /// Repairs zero phase range and decoded range values,
-    /// that are physically incorrect and most likely generated
-    /// by incorrect GNSS receiver behavior.
-    Zero,
-}
-
-pub trait RepairTrait {
-    fn repair(&self, r: Repair) -> Self;
-    fn repair_mut(&mut self, r: Repair);
-}
-
 #[derive(Error, Debug)]
 pub enum Error {
     #[error("invalid filter")]
