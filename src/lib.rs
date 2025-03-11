@@ -3,7 +3,7 @@
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
 mod field;
-pub use field::QcField;
+pub use field::{Error as QcFieldError, QcField};
 
 mod merge;
 pub use merge::{Error as MergeError, Merge};
