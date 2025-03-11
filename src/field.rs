@@ -2,7 +2,7 @@ use hifitime::prelude::{Epoch, HifitimeError};
 use thiserror::Error;
 
 /// [QcField] describes interesting data fields
-#[derive(Debug, Clone)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum QcField {
     /// 3D ECEF coordinates (m)
     EcefCoordinates3d((f64, f64, f64)),
@@ -107,10 +107,12 @@ impl std::str::FromStr for QcField {
 #[cfg(test)]
 mod test {
     use crate::QcField;
+    use hifitime::prelude::Epoch;
     use std::str::FromStr;
 
     #[test]
     fn qc_field_parsing() {
+        let datetime = Epoch::from_str("2010-01-01T00:00:00 UTC").unwrap();
         for (content, expected) in [
             (
                 "ecef:123,456,789",
@@ -121,9 +123,12 @@ mod test {
                 QcField::GeoCoordinates3d((123.0, 456.0, 789.0)),
             ),
             ("agency:Some-Name", QcField::Agency("Some-Name".to_string())),
-            ("operator:Some-One", QcField::Agency("Some-One".to_string())),
             (
-                "marker:calibraged",
+                "operator:Some-One",
+                QcField::Operator("Some-One".to_string()),
+            ),
+            (
+                "marker:calibrated",
                 QcField::GeoMarker("calibrated".to_string()),
             ),
             (
@@ -135,6 +140,9 @@ mod test {
                 QcField::EndDateTime(datetime),
             ),
             ("scaling:10", QcField::Scaling("10".to_string())),
-        ] {}
+        ] {
+            let field = QcField::from_str(content).unwrap();
+            assert_eq!(field, expected);
+        }
     }
 }
