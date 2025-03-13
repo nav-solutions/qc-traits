@@ -34,14 +34,20 @@ pub enum Error {
     Other,
 }
 
-/// Merge Trait is impleted to extend Data Contexts.
-pub trait Merge {
+/// [QcMerge] Trait allows data set extension.
+pub trait QcMerge {
+    /// Merge operation, with mutable access.
+    fn merge_mut(&mut self, rhs: &Self) -> Result<(), Error>;
+
     /// Merge "rhs" dataset into self, to form extend dataset.
     /// We use this for example to extend 24h RINEX to 1week RINEX.
     /// When merging File A and B types must match otherwise operation is invalid.
     fn merge(&self, rhs: &Self) -> Result<Self, Error>
     where
-        Self: Sized;
-    /// [Self::merge] mutable implementation.
-    fn merge_mut(&mut self, rhs: &Self) -> Result<(), Error>;
+        Self: Sized + Clone,
+    {
+        let mut s = self.clone();
+        s.merge_mut(rhs)?;
+        Ok(s)
+    }
 }

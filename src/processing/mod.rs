@@ -11,9 +11,6 @@ pub use mask::{Error as MaskError, MaskFilter, MaskOperand, Masking};
 mod decim;
 pub use decim::{Decimate, DecimationFilter, DecimationFilterType, Error as DecimationError};
 
-mod split;
-pub use split::Split;
-
 /// Preprocessing Trait is usually implemented by GNSS data
 /// to preprocess prior further analysis.
 pub trait Preprocessing: Masking + Decimate + Split {

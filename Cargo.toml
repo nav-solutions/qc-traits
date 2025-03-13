@@ -14,10 +14,8 @@ edition = "2021"
 default = ["html"]
 
 # Unlock processing features
-# - Filter designer: design and apply filter ops to GNSS datasets
-processing = [
-    "dep:gnss-rs",
-]
+# - QcFilter ops definition for preprocessing
+processing = []
 
 # Unlock HTML reporting
 # This is enabled by default, since HTML is our only reporting format to this day.
@@ -33,4 +31,4 @@ rustdoc-args = ["--cfg", "docrs", "--generate-link-to-definition"]
 thiserror = "2"
 hifitime = "4.0"
 maud = { version = "0.26", optional = true }
-gnss-rs = { version = "2.3.5", features = ["serde", "domes", "cospar"], optional = true }
+gnss-rs = { version = "2.3.5", features = ["serde", "domes", "cospar"] }

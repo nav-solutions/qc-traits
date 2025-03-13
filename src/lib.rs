@@ -2,21 +2,33 @@
 #![doc = include_str!("../README.md")]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
+mod errors;
 mod field;
-pub use field::{Error as QcFieldError, QcField};
-
 mod merge;
-pub use merge::{Error as MergeError, Merge};
-
+mod products;
 mod repair;
-pub use repair::QcRepair;
-
 mod rework;
-pub use rework::QcRework;
+mod scope;
+mod split;
+mod subset;
+
+pub(crate) mod ops;
 
 #[cfg(feature = "processing")]
 #[cfg_attr(docsrs, doc(cfg(feature = "processing")))]
-mod processing;
+mod filter;
+
+pub use crate::{
+    errors::{QcError, QcSubsetError},
+    field::{Error as QcFieldError, QcField},
+    merge::{Error as QcMergeError, QcMerge},
+    products::QcProductType,
+    repair::QcRepair,
+    rework::QcRework,
+    scope::QcScope,
+    split::QcSplit,
+    subset::QcSubset,
+};
 
 #[cfg(feature = "processing")]
 pub use processing::{
