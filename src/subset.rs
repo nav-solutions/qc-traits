@@ -1,11 +1,6 @@
 //! QcSubset definition
 use crate::errors::QcSubsetError;
-
-use std::{num::ParseFloatError, str::FromStr};
-use thiserror::Error;
-
 use gnss_rs::prelude::{Constellation, SV};
-
 use hifitime::{Duration, Epoch};
 
 /// [QcSubset] represents items that our [QcGenericOps] may target.

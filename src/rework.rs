@@ -7,11 +7,8 @@ pub trait QcRework {
     /// Add specific [QcField]. If it exist, you should overwrite.
     fn add_mut(&mut self, field: &QcField);
 
-    /// Remove specific [QcField]. If it does not exist, remain as is.c
+    /// Remove specific [QcField]. If it does not exist, this will not cause an error.
     fn remove_mut(&mut self, field: &QcField);
-
-    /// Modify specific [QcField] value. If it does not exist, you should introduce.
-    fn modify_mut(&mut self, field: &QcField);
 
     fn add(&self, field: &QcField) -> Self
     where
@@ -28,15 +25,6 @@ pub trait QcRework {
     {
         let mut s = self.clone();
         s.remove_mut(field);
-        s
-    }
-
-    fn modify(&self, field: &QcField) -> Self
-    where
-        Self: Clone + Sized,
-    {
-        let mut s = self.clone();
-        s.modify_mut(field);
         s
     }
 }

@@ -11,55 +11,6 @@ pub use mask::{Error as MaskError, MaskFilter, MaskOperand, Masking};
 mod decim;
 pub use decim::{Decimate, DecimationFilter, DecimationFilterType, Error as DecimationError};
 
-/// Preprocessing Trait is usually implemented by GNSS data
-/// to preprocess prior further analysis.
-pub trait Preprocessing: Masking + Decimate + Split {
-    /// Apply [Filter] algorithm on immutable dataset.
-    fn filter(&self, filter: &Filter) -> Self
-    where
-        Self: Sized,
-    {
-        match filter {
-            Filter::Mask(f) => self.mask(f),
-            Filter::Decimation(f) => self.decimate(f),
-        }
-    }
-    /// Apply [Filter] algorithm on mutable dataset.
-    fn filter_mut(&mut self, filter: &Filter) {
-        match filter {
-            Filter::Mask(f) => self.mask_mut(f),
-            Filter::Decimation(f) => self.decimate_mut(f),
-        }
-    }
-}
-
-#[derive(Error, Debug)]
-pub enum Error {
-    #[error("invalid filter")]
-    InvalidFilter,
-    #[error("unknown filter type \"{0}\"")]
-    UnknownFilterType(String),
-    #[error("invalid mask filter")]
-    MaskFilterParsing(#[from] MaskError),
-    #[error("invalid filter item")]
-    FilterItemError(#[from] ItemError),
-    #[error("invalid decimation filter")]
-    DecimationFilterParsing(#[from] DecimationError),
-}
-
-/// Preprocessing filters, to preprocess RINEX data prior further analysis.
-/// Filters can apply either on entire RINEX or subsets.
-/// Refer to [TargetItem] definition to understand which data subsets exist.  
-#[derive(Debug, Clone, PartialEq)]
-pub enum Filter {
-    /// Mask filter, to focus on specific data subsets
-    Mask(MaskFilter),
-    /// Decimation filter, filters to reduce sample rate
-    Decimation(DecimationFilter),
-    // /// Interpolation filter is work in progress and cannot be used at the moment
-    // Interp(InterpFilter),
-}
-
 impl Filter {
     /// Builds new [MaskFilter] from given specs
     pub fn mask(operand: MaskOperand, item: FilterItem) -> Self {

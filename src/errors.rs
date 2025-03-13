@@ -14,24 +14,15 @@ pub enum QcSubsetError {
     EmptyItem,
     #[error("qc-subset: invalid")]
     InvalidSubset,
-    #[error("item guessing error: {0}")]
-    TypeGuessingError(String),
-    #[error("two valid epochs are required to describe a duration")]
+}
+
+/// [QcFilter] parsing error;
+#[derive(Debug, Error)]
+pub enum QcFilterError {
+    #[error("qc-filter: invalid modulo filter")]
+    InvalidModuloFilter,
+    #[error("qc-filter: invalid duration")]
     InvalidDuration,
-    #[error("invalid epoch description")]
-    InvalidEpoch,
-    #[error("invalid SNR description")]
-    InvalidSNR,
-    #[error("invalid elevation angle (0 <= e <= 90)")]
-    InvalidElevationAngle,
-    #[error("invalid azimuth angle description (0 <= a <= 360)")]
-    InvalidAzimuthAngle,
-    #[error("invalid float number")]
-    FloatParsing(#[from] ParseFloatError),
-    #[error("sv item parsing")]
-    SVParsing(#[from] SVParsingError),
-    #[error("constellation item parsing")]
-    ConstellationParing(#[from] ConstellationParsingError),
-    #[error("duration item parsing")]
-    InvalidDurationItem(#[from] EpochParsingError),
+    #[error("qc-filter: invalid operand")]
+    InvalidOperand,
 }

@@ -13,10 +13,6 @@ edition = "2021"
 [features]
 default = ["html"]
 
-# Unlock processing features
-# - QcFilter ops definition for preprocessing
-processing = []
-
 # Unlock HTML reporting
 # This is enabled by default, since HTML is our only reporting format to this day.
 html = [

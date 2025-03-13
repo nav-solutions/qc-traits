@@ -1,4 +1,4 @@
-//! Data repairment
+//! [QcRepair] for data repairment
 
 /// The [QcRepair] Trait allows local and in place data repairment
 /// (micro patching).
