@@ -4,9 +4,9 @@ use thiserror::Error;
 #[cfg(docsrs)]
 use hifitime::TimeScale;
 
-/// [Merge] specific Errors.
+/// [QcMerge] specific Errors.
 #[derive(Error, Debug)]
-pub enum Error {
+pub enum QcMergeError {
     /// Some File formats do not support the [Merge] operation
     #[error("file type mismatch")]
     MergeNotSupported,
@@ -37,12 +37,12 @@ pub enum Error {
 /// [QcMerge] Trait allows data set extension.
 pub trait QcMerge {
     /// Merge operation, with mutable access.
-    fn merge_mut(&mut self, rhs: &Self) -> Result<(), Error>;
+    fn merge_mut(&mut self, rhs: &Self) -> Result<(), QcMergeError>;
 
     /// Merge "rhs" dataset into self, to form extend dataset.
     /// We use this for example to extend 24h RINEX to 1week RINEX.
     /// When merging File A and B types must match otherwise operation is invalid.
-    fn merge(&self, rhs: &Self) -> Result<Self, Error>
+    fn merge(&self, rhs: &Self) -> Result<Self, QcMergeError>
     where
         Self: Sized + Clone,
     {

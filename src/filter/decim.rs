@@ -2,15 +2,15 @@ use crate::errors::QcFilterError;
 use hifitime::Duration;
 
 /// Supported algorithms
-#[derive(Clone, Debug, PartialEq)]
-pub enum DecimationFilter {
+#[derive(Clone, Debug, Copy, PartialEq)]
+pub enum QcDecimationFilter {
     /// Simple modulo decimation
     Modulo(u32),
     /// Duration decimation
     Duration(Duration),
 }
 
-impl DecimationFilter {
+impl QcDecimationFilter {
     /// Builds a [DecimationFilter::Duration].
     pub fn from_duration(dt: Duration) -> Self {
         Self::Duration(dt)
@@ -22,7 +22,7 @@ impl DecimationFilter {
     }
 }
 
-impl std::str::FromStr for DecimationFilter {
+impl std::str::FromStr for QcDecimationFilter {
     type Err = QcFilterError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let trimmed = s.trim();

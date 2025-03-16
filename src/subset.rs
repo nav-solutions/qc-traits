@@ -4,9 +4,12 @@ use gnss_rs::prelude::{Constellation, SV};
 use hifitime::{Duration, Epoch};
 
 /// [QcSubset] represents items that our [QcGenericOps] may target.
-#[derive(Clone, Debug, PartialEq, PartialOrd)]
+#[derive(Clone, Default, Debug, PartialEq, PartialOrd)]
 pub enum QcSubset {
-    /// Datetime as [Epoch]
+    /// Applies to all dataset
+    #[default]
+    All,
+    /// Applies to Datetime as [Epoch]
     Datetime(Epoch),
     /// [Duration]
     Duration(Duration),
@@ -163,6 +166,7 @@ impl std::str::FromStr for QcSubset {
 impl std::fmt::Display for QcSubset {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
+            Self::All => write!(f, "all"),
             Self::Datetime(t) => write!(f, "{}", t),
             Self::Duration(dt) => write!(f, "dt = {}", dt),
             Self::AzimuthDegrees(azim) => write!(f, "azim ={:.3}°", azim),

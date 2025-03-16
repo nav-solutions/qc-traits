@@ -11,7 +11,7 @@ categories = ["science", "science::geo"]
 edition = "2021"
 
 [features]
-default = ["html"]
+default = []
 
 # Unlock HTML reporting
 # This is enabled by default, since HTML is our only reporting format to this day.

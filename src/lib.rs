@@ -16,8 +16,8 @@ mod subset;
 pub use crate::{
     errors::{QcError, QcSubsetError},
     field::{Error as QcFieldError, QcField},
-    filter::QcFilter,
-    merge::{Error as QcMergeError, QcMerge},
+    filter::{QcDecimationFilter, QcFilter, QcFilterType, QcMaskOperand},
+    merge::{QcMerge, QcMergeError},
     products::QcProductType,
     repair::QcRepair,
     rework::QcRework,
@@ -30,11 +30,11 @@ pub use crate::{
 /// that one may use at the input of a processing pipeline
 pub trait QcPreprocessing {
     /// Apply a [QcFilter] with mutable access.
-    fn filter_mut(&mut self, f: QcFilter);
+    fn filter_mut(&mut self, f: &QcFilter);
 
     /// Applies a [QcFilter] without mutable access,
     /// returns filtered result or simply a copy if this [QcFilter] does not apply.
-    fn filter(&self, f: QcFilter) -> Self
+    fn filter(&self, f: &QcFilter) -> Self
     where
         Self: Sized + Clone,
     {
