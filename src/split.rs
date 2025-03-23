@@ -1,11 +1,14 @@
 //! Split operation, to split in time domain
-use hifitime::Epoch;
+use hifitime::{Duration, Epoch};
 
 /// Implement [QcSplit] to rearrange datasets timewise.
 pub trait QcSplit {
     /// [QcSplit]s [Self] with mutable access, retaining only <= t,
     /// and returning > t.
     fn split_mut(&mut self, t: Epoch) -> Self;
+
+    /// [QcSplit]s Self into a batch of equal [Duration]
+    fn split_even_dt(&self, dt: Duration) -> Vec<Self> where Self: Sized;
 
     /// [QcSplit]s Self into two at specified [Epoch]
     /// Returns:
