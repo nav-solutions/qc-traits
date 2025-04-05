@@ -4,7 +4,10 @@ mod mask;
 use crate::{QcScope, QcSubset};
 use hifitime::Duration;
 
-pub use crate::filter::{decim::QcDecimationFilter, mask::QcMaskOperand};
+pub use crate::filter::{
+    decim::QcDecimationFilter,
+    mask::{QcMaskFilter, QcMaskOperand},
+};
 
 /// [QcFilterType] defines all supported filters
 #[derive(Clone)]

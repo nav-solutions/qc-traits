@@ -1,7 +1,7 @@
 use crate::errors::QcFilterError;
 
 /// [QcMaskOperand] describes how to apply a given mask
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, Default, PartialEq)]
 pub enum QcMaskOperand {
     /// Greater than, is symbolized by ">".
     GreaterThan,
@@ -11,6 +11,7 @@ pub enum QcMaskOperand {
     LowerThan,
     /// Lower Equals, symbolized by "<=".
     LowerEquals,
+    #[default]
     /// Equals, symbolized by "=".
     /// Equals operand is implied anytime the operand is omitted in the description.
     Equals,
