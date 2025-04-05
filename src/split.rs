@@ -8,7 +8,9 @@ pub trait QcSplit {
     fn split_mut(&mut self, t: Epoch) -> Self;
 
     /// [QcSplit]s Self into a batch of equal [Duration]
-    fn split_even_dt(&self, dt: Duration) -> Vec<Self> where Self: Sized;
+    fn split_even_dt(&self, dt: Duration) -> Vec<Self>
+    where
+        Self: Sized;
 
     /// [QcSplit]s Self into two at specified [Epoch]
     /// Returns:

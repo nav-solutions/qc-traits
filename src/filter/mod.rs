@@ -7,16 +7,17 @@ use hifitime::Duration;
 pub use crate::filter::{decim::QcDecimationFilter, mask::QcMaskOperand};
 
 /// [QcFilterType] defines all supported filters
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub enum QcFilterType {
-    /// [DecimationFilter] to reduce sample rate
+    /// [QcDecimationFilter] to reduce sample rate
     Decimation(QcDecimationFilter),
-    /// [MaskOperand] to retain or filter out data
-    Mask(QcMaskOperand),
+    /// [QcMaskFilter] to retain or filter out data
+    Mask(QcMaskFilter),
 }
 
 impl QcFilterType {
-    /// Builds a new [QcFilterType] (integral) % decimation
+    /// Builds a new [QcDecimationFilter] (integral) % decimation targetting
+    /// the entire Dataset
     pub fn from_decimation_modulo(modulo: u32) -> Self {
         Self::Decimation(QcDecimationFilter::from_modulo(modulo))
     }
@@ -36,8 +37,6 @@ impl QcFilterType {
 pub struct QcFilter {
     /// [QcScope] to which this operation should apply
     pub scope: QcScope,
-    /// [QcSubset] targeted by this operation
-    pub subset: QcSubset,
-    /// [QcFilter] operation
+    /// [QcFilterType] Specific operation
     pub filter: QcFilterType,
 }

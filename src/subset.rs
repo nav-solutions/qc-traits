@@ -3,13 +3,13 @@ use crate::errors::QcSubsetError;
 use gnss_rs::prelude::{Constellation, SV};
 use hifitime::{Duration, Epoch};
 
-/// [QcSubset] represents items that our [QcGenericOps] may target.
+/// [QcSubset] represents items that our filters may target.
 #[derive(Clone, Default, Debug, PartialEq, PartialOrd)]
 pub enum QcSubset {
-    /// Applies to all dataset
+    /// Applies to all dataset unconditionnally.
     #[default]
     All,
-    /// Applies to Datetime as [Epoch]
+    /// Applies to specific Datetime ([Epoch]) only
     Datetime(Epoch),
     /// [Duration]
     Duration(Duration),
@@ -27,10 +27,10 @@ pub enum QcSubset {
     ClockOffetSeconds(f64),
     /// Clock drift (in s.s⁻¹)
     ClockDriftSecondsSeconds(f64),
-    /// Single item we cannot interprate at this level
-    ComplexString(String),
-    /// List of items we cannot interprate at this level
-    ComplexStringArray(Vec<String>),
+    /// Single readable item we cannot interprate at this level
+    String(String),
+    /// List of string we cannot interprate at this level, orginnaly described by CSV.
+    CsvStringArray(Vec<String>),
 }
 
 impl QcSubset {

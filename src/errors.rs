@@ -3,16 +3,18 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum QcError {
-    #[error("qc-error: unknown product type")]
+    #[error("Invalid scope")]
+    InvalidScope,
+    #[error("Unknown product type")]
     UnknownProductType,
 }
 
 /// Errors related to [QcSubset] parsing
 #[derive(Debug, Error)]
 pub enum QcSubsetError {
-    #[error("qc-subset: empty description")]
+    #[error("empty description")]
     EmptyItem,
-    #[error("qc-subset: invalid")]
+    #[error("invalid subset")]
     InvalidSubset,
 }
 
