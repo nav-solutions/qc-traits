@@ -7,9 +7,11 @@ mod errors;
 mod field;
 mod merge;
 mod pipeline;
+mod processing;
 mod products;
 mod repair;
 mod rework;
+mod scaling;
 mod scope;
 mod split;
 
@@ -18,6 +20,7 @@ pub use crate::{
     field::{Error as QcFieldError, QcField},
     merge::{QcMerge, QcMergeError},
     pipeline::QcPipeline,
+    processing::filter::QcDecimationFilter,
     products::QcProductType,
     repair::QcRepair,
     rework::QcRework,
@@ -30,23 +33,18 @@ pub mod prelude {
     pub use hifitime::{Duration, Epoch, Unit};
 }
 
-// /// The [QcPreprocessing] trait allows all preprocessing operations
-// /// that one may use at the input of a processing pipeline
-// pub trait QcPreprocessing {
-//     /// Apply a [QcFilter] with mutable access.
-//     fn filter_mut(&mut self, f: &QcFilter);
+pub trait QcPreprocessing: QcRepair {
+    fn downsampling_mut(&mut self, filter: &QcPipeline<QcDecimationFilter>);
 
-//     /// Applies a [QcFilter] without mutable access,
-//     /// returns filtered result or simply a copy if this [QcFilter] does not apply.
-//     fn filter(&self, f: &QcFilter) -> Self
-//     where
-//         Self: Sized + Clone,
-//     {
-//         let mut s = self.clone();
-//         s.filter_mut(f);
-//         s
-//     }
-// }
+    fn downsampling(&self, filter: &QcPipeline<QcDecimationFilter>) -> Self
+    where
+        Self: Sized + Clone,
+    {
+        let mut s = self.clone();
+        s.downsampling_mut(filter);
+        s
+    }
+}
 
 #[cfg(feature = "html")]
 pub use maud::{html, Markup};

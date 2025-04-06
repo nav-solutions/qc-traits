@@ -26,6 +26,13 @@ pub enum QcAngleParsingError {
     InvalidValue,
 }
 
+/// Errors while parsing a [QcScaling]
+#[derive(Debug, Error)]
+pub enum QcScalingParsingError {
+    #[error("invalid number")]
+    InvalidNumber,
+}
+
 /// Errors while parsing a [QcScope]
 #[derive(Debug, Error)]
 pub enum QcScopeError {
