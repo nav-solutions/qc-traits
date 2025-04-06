@@ -1,5 +1,6 @@
-pub mod select;
+use crate::errors::QcPipelineError;
 
+pub mod select;
 pub use select::{QcSelection, QcSelectionStep, QcSelectionStepItem, QcSelectionStepOperand};
 
 use crate::QcScope;
@@ -38,6 +39,51 @@ pub struct QcPipeline {
     pub scope: QcScope,
     /// [QcSelection]
     pub select: QcSelection,
+}
+
+enum Token {
+    Delimiter,
+    Agency,
+    Operator,
+    File,
+    Scope(QcScope),
+    Step(QcSelectionStep),
+}
+
+struct Parser;
+
+impl Parser {
+    fn tokenize(s: &str) -> Vec<Token> {
+        let trimmed = s.trim();
+        let mut buffer = String::new();
+        let mut token = Option::<Token>::None;
+        let mut tokens = Vec::with_capacity(4);
+
+        for c in trimmed.chars() {
+            buffer.push(c);
+
+            match c {
+                ':' => {
+                    if let Some(token) = &token {
+                    } else {
+                    }
+                }
+                _ => {}
+            }
+        }
+
+        tokens
+    }
+}
+
+impl std::str::FromStr for QcPipeline {
+    type Err = QcPipelineError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let tokens = Parser::tokenize(s);
+
+        Err(QcPipelineError::EmptyPipeline)
+    }
 }
 
 // #[cfg(test)]

@@ -7,6 +7,8 @@ use crate::{pipeline::QcPipeline, QcAngle, QcScope};
 /// Errors while designing a [QcPipeline]
 #[derive(Debug, Error)]
 pub enum QcPipelineError {
+    #[error("empty pipeline")]
+    EmptyPipeline,
     #[error("invalid pipeline scope: {0}")]
     InvalidScope(QcScopeError),
     #[error("invalid pipeline selection: {0}")]

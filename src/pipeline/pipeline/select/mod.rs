@@ -4,6 +4,7 @@ pub use step::{QcSelectionStep, QcSelectionStepItem, QcSelectionStepOperand};
 
 /// [QcSelection] filter to apply a custom algorithm or filter
 /// to a specific subset
+#[derive(Debug, Clone, Default)]
 pub struct QcSelection {
     steps: Vec<QcSelectionStep>,
 }

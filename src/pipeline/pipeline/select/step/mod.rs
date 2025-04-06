@@ -112,7 +112,7 @@ impl std::str::FromStr for QcSelectionStep {
             })
             .reduce(|k, _| k);
 
-        if tokens.contains(&Token::Azimuth) {
+        if tokens.starts_with(&[Token::Azimuth]) {
             // angle value required
             let angle = tokens
                 .iter()
@@ -134,7 +134,7 @@ impl std::str::FromStr for QcSelectionStep {
                     item: QcSelectionStepItem::Azimuth(*angle),
                 })
             }
-        } else if tokens.contains(&Token::Elevation) {
+        } else if tokens.starts_with(&[Token::Elevation]) {
             // angle value required
             let angle = tokens
                 .iter()
