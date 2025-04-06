@@ -1,5 +1,5 @@
 //! (Input) Products we may have to manage
-use crate::errors::QcError;
+use crate::errors::QcScopeError;
 
 /// [QcProductType] defines product types we may manage.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -22,14 +22,14 @@ impl std::fmt::Display for QcProductType {
 }
 
 impl std::str::FromStr for QcProductType {
-    type Err = QcError;
+    type Err = QcScopeError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let trimmed = s.trim();
         let lowered = trimmed.to_lowercase();
         match lowered.as_str() {
             "obs" | "observation" => Ok(Self::Observation),
             "nav" | "brdc" | "navigation" => Ok(Self::BroadcastNavigation),
-            _ => Err(QcError::UnknownProductType),
+            _ => Err(QcScopeError::UnknownProductType),
         }
     }
 }

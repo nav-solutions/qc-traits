@@ -10,7 +10,7 @@ pub struct QcMaskFilter {
 
 /// Parse [QcMaskFilter] from readable string description.
 /// Accepted values are:
-/// - "nav>E10"
+/// - "E10"
 /// -
 impl std::str::FromStr for QcMaskFilter {
     type Err = QcFilterError;

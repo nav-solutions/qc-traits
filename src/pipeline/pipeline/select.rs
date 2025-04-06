@@ -3,22 +3,41 @@ use crate::errors::QcSubsetError;
 use gnss_rs::prelude::{Constellation, SV};
 use hifitime::{Duration, Epoch};
 
-/// [QcSubset] represents items that our filters may target.
+use crate::{
+    QcAngle,
+};
+
+#[cfg(docs)]
+use crate::pipeline::QcPipeline;
+
+"Select:Gal"
+"Select:el>10"
+"Select:az>100"
+"Select:>=2000-01-01T00:00:00 UTC"
+"Select:"
+
+/// [QcSelect] to target specific items in a [QcPipeline]
+/// 
+/// [QcSelect] definition in a [QcPipeline]:
+/// 
+/// - Select one constellation: "Select:Gal"
+/// - Select several constellations: "Select:Gal,GPS"
+/// - Select elevation condition: "Select:el>10 deg" 
 #[derive(Clone, Default, Debug, PartialEq, PartialOrd)]
-pub enum QcSubset {
-    /// Applies to all dataset unconditionnally.
+pub enum QcSelect {
+    /// Apply unconditionnally.
     #[default]
     All,
     /// Applies to specific Datetime ([Epoch]) only
     Datetime(Epoch),
     /// [Duration]
     Duration(Duration),
-    /// Signal to noise ratio
+    /// Apply to Signal Signal to noise ratio
     SNR(f64),
     /// Elevation angle in degrees
-    ElevationDegrees(f64),
+    Elevation(QcAngle),
     /// Azimuth angle in degrees
-    AzimuthDegrees(f64),
+    Azimuth(QcAngle),
     /// List of satellites described by [SV]
     Satellites(Vec<SV>),
     /// List of [Constellation]s described by [Constellation]
@@ -30,7 +49,7 @@ pub enum QcSubset {
     /// Single readable item we cannot interprate at this level
     String(String),
     /// List of string we cannot interprate at this level, orginnaly described by CSV.
-    CsvStringArray(Vec<String>),
+    CsvStringList(Vec<String>),
 }
 
 impl QcSubset {
@@ -101,41 +120,15 @@ impl QcSubset {
 
     /// Builds a [QcSubset::ComplexString] from uninterpretable string description
     pub fn from_complex_str(s: &str) -> Self {
-        Self::ComplexString(s.to_string())
+        Self::String(s.to_string())
     }
 
     /// Builds a [QcSubset::ComplexStringArray] from array of uninterpretable string descriptions
     pub fn from_complex_str_array(s: &[&str]) -> Self {
-        Self::ComplexStringArray(s.iter().map(|s| s.to_string()).collect())
+        Self::CsvStringList(s.iter().map(|s| s.to_string()).collect())
     }
 }
 
-// pub(crate) fn parse_sv_list(items: Vec<&str>) -> Result<Vec<SV>, SVParsingError> {
-//     let mut ret: Vec<SV> = Vec::with_capacity(items.len());
-//     for item in items {
-//         let sv = SV::from_str(item.trim())?;
-//         ret.push(sv);
-//     }
-//     Ok(ret)
-// }
-//
-// pub(crate) fn parse_gnss_list(
-//     items: Vec<&str>,
-// ) -> Result<Vec<Constellation>, ConstellationParsingError> {
-//     let mut ret: Vec<Constellation> = Vec::with_capacity(items.len());
-//     for item in items {
-//         let c = Constellation::from_str(item.trim())?;
-//         ret.push(c);
-//     }
-//     Ok(ret)
-// }
-//
-// fn parse_float_payload(content: &str) -> Result<f64, ParseFloatError> {
-//     f64::from_str(content.trim())
-// }
-
-// // use itertools::Itertools;
-//
 impl std::str::FromStr for QcSubset {
     type Err = QcSubsetError;
     fn from_str(content: &str) -> Result<Self, Self::Err> {

@@ -11,10 +11,10 @@ mod repair;
 mod rework;
 mod scope;
 mod split;
-mod subset;
+mod angle;
+mod pipeline;
 
 pub use crate::{
-    errors::{QcError, QcSubsetError},
     field::{Error as QcFieldError, QcField},
     filter::{QcDecimationFilter, QcFilter, QcFilterType, QcMaskOperand},
     merge::{QcMerge, QcMergeError},
@@ -23,7 +23,8 @@ pub use crate::{
     rework::QcRework,
     scope::QcScope,
     split::QcSplit,
-    subset::QcSubset,
+    angle::QcAngle,
+    pipeline::QcPipeline,
 };
 
 /// The [QcPreprocessing] trait allows all preprocessing operations

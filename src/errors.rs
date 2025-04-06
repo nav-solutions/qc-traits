@@ -1,30 +1,42 @@
 //! Error definitions
 use thiserror::Error;
 
+#[cfg(docs)]
+use crate::{
+    QcScope,
+    pipeline::QcPipeline,
+    QcAngle,
+};
+
+/// Errors while designing a [QcPipeline]
 #[derive(Debug, Error)]
-pub enum QcError {
+pub enum QcPipelineError {
+    #[error("invalid pipeline scope: {0}")]
+    InvalidScope(QcScopeError),
+    #[error("invalid pipeline selection: {0}")]
+    InvalidSelect(QcSelectError),
+}
+
+/// Errors while parsing a [QcAngle]
+#[derive(Debug, Error)]
+pub enum QcAngleParsingError {
+    #[error("invalid unit")]
+    InvalidUnit,
+    #[error("invalid angle value")]
+    InvalidValue,
+}
+
+/// Errors while parsing a [QcScope]
+#[derive(Debug, Error)]
+pub enum QcScopeError {
     #[error("Invalid scope")]
     InvalidScope,
     #[error("Unknown product type")]
     UnknownProductType,
 }
 
-/// Errors related to [QcSubset] parsing
-#[derive(Debug, Error)]
-pub enum QcSubsetError {
-    #[error("empty description")]
-    EmptyItem,
-    #[error("invalid subset")]
-    InvalidSubset,
-}
 
-/// [QcFilter] parsing error;
+/// Errors while describing a [QcSelect]ion method
 #[derive(Debug, Error)]
-pub enum QcFilterError {
-    #[error("qc-filter: invalid modulo filter")]
-    InvalidModuloFilter,
-    #[error("qc-filter: invalid duration")]
-    InvalidDuration,
-    #[error("qc-filter: invalid operand")]
-    InvalidOperand,
+pub enum QcSelectError {
 }
