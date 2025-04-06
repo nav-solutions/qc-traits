@@ -1,7 +1,7 @@
 //! Error definitions
 use thiserror::Error;
 
-#[cfg(docs)]
+#[cfg(doc)]
 use crate::{pipeline::QcPipeline, QcAngle, QcScope};
 
 /// Errors while designing a [QcPipeline]

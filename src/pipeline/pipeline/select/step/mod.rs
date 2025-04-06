@@ -7,7 +7,7 @@ pub use item::QcSelectionStepItem;
 pub use operand::QcSelectionStepOperand;
 
 #[cfg(doc)]
-use crate::{pipeline::QcPipeline, QcAngle};
+use crate::pipeline::QcPipeline;
 
 /// [QcSelectionStep] to target specific items with a [QcPipeline]
 ///

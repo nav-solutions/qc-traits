@@ -6,34 +6,43 @@ pub use select::{QcSelection, QcSelectionStep, QcSelectionStepItem, QcSelectionS
 use crate::QcScope;
 
 /// [QcPipeline] describes a processing pipeline
-/// that may apply to the entire scope or narrowed scoped operation.
+/// that may apply to the entire or focused on a specific scope.
+/// See supported [QcSelectionStepItem]s that may be described in each step.
 ///
 /// Basic [QcPipeline] description:
 ///
-/// - Unscoped (entire set): "decim:%2"
-/// - Masking: "Select:Gal"
+/// - Unscoped (entire set) operations: "decim:%2"
+/// - Masking (discard anything but): "Select:Gal"
+/// - Masking (discard this value): "Select:!Gal"
 /// - Scoped operations: "Select:Gal,GPS:decim:%2"
+/// - Scoped operations: "Select:!Gal:decim:%2"
 ///
-/// ## [QcSelect]ion
+/// ## Single Step [QcPipeline]
 ///
-/// Simple selection (item masking) to discard everything but.
-/// See [QcSelect]ion items.
+/// Item selection (masking) is implied, anytime the operand is omitted.
+/// That means we discard everything but provided value(s).
 ///
 /// - One item: "Select:Gal"
-/// - Several items: "Select:Gal,GPS"
+/// - Ues CSV to describe several items: "Select:Gal,GPS"
 ///
 /// Conditional selection applies to SV, datetime, durations and angles:
 ///
 /// - PRN# masking: "Select:>E01"
 /// - Datetime masking: "Select:<=2020-01-01T00:00:00 UTC"
-/// -
+/// - Elevation masking: "Select:el>10"
+/// - Elevation masking: "Select:el>10deg"
+/// - Elevation masking: "Select:el>10 rad"
+/// - Azimuth masking: "Select:az>10"
+/// - Azimuth masking: "Select:az>10deg"
+/// - Azimuth masking: "Select:az>10 rad"
 ///
 /// ## [QcScope]d selection
 ///
 /// Scoped selection, by prepending a scope definition.
 /// See [QcScope] definitions for available scopes.
 ///
-/// - "Scope:obs:Select:Gal,GPS"
+/// - Retain only Gal and GPS constellations from Observed products `Scope:obs:Select:Gal,GPS`
+/// - Retain only Gal and GPS from MyAgency publish: `Scope:agency:MyAgency:Select:Gal,GPS`
 pub struct QcPipeline {
     /// [QcScope]
     pub scope: QcScope,

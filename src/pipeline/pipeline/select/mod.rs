@@ -1,5 +1,4 @@
 pub mod step;
-
 pub use step::{QcSelectionStep, QcSelectionStepItem, QcSelectionStepOperand};
 
 /// [QcSelection] filter to apply a custom algorithm or filter
