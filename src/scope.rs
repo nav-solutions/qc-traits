@@ -48,17 +48,17 @@ impl std::str::FromStr for QcScope {
             if len > 3 && trimmed.starts_with("ag:") {
                 let agency = trimmed[3..].to_string();
                 Ok(QcScope::Agency(agency))
-            } else if len > 7 && trimmed.starts_with("agency:") {
-                let agency = trimmed[8..].to_string();
+            } else if len > 6 && trimmed.starts_with("agency:") {
+                let agency = trimmed[7..].to_string();
                 Ok(QcScope::Agency(agency))
-            } else if len > 9 && trimmed.starts_with("operator:") {
-                let operator = trimmed[10..].to_string();
+            } else if len > 8 && trimmed.starts_with("operator:") {
+                let operator = trimmed[9..].to_string();
                 Ok(QcScope::Operator(operator))
             } else if len > 3 && trimmed.starts_with("op:") {
                 let operator = trimmed[3..].to_string();
                 Ok(QcScope::Operator(operator))
-            } else if len > 5 && trimmed.starts_with("file:") {
-                let file = trimmed[6..].to_string();
+            } else if len > 4 && trimmed.starts_with("file:") {
+                let file = trimmed[5..].to_string();
                 Ok(QcScope::FileName(file))
             } else {
                 Err(QcScopeError::InvalidScope)
@@ -98,7 +98,7 @@ mod test {
             let scope = QcScope::from_str(value)
                 .unwrap_or_else(|e| panic!("Failed to parse QcScope from \"{}\" - {}", value, e));
 
-            assert_eq!(scope, expected);
+            assert_eq!(scope, expected, "Failed for value \"{}\"", value);
         }
     }
 }
