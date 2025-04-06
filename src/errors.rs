@@ -2,11 +2,7 @@
 use thiserror::Error;
 
 #[cfg(docs)]
-use crate::{
-    QcScope,
-    pipeline::QcPipeline,
-    QcAngle,
-};
+use crate::{pipeline::QcPipeline, QcAngle, QcScope};
 
 /// Errors while designing a [QcPipeline]
 #[derive(Debug, Error)]
@@ -14,7 +10,9 @@ pub enum QcPipelineError {
     #[error("invalid pipeline scope: {0}")]
     InvalidScope(QcScopeError),
     #[error("invalid pipeline selection: {0}")]
-    InvalidSelect(QcSelectError),
+    InvalidSelection(QcSelectionError),
+    #[error("invalid pipeline operand")]
+    InvalidOperand,
 }
 
 /// Errors while parsing a [QcAngle]
@@ -35,8 +33,13 @@ pub enum QcScopeError {
     UnknownProductType,
 }
 
-
-/// Errors while describing a [QcSelect]ion method
+/// Errors while describing a [QcSelection] method
 #[derive(Debug, Error)]
-pub enum QcSelectError {
+pub enum QcSelectionError {
+    #[error("Empty selection step")]
+    EmptyStep,
+    #[error("Invalid item")]
+    InvalidItem,
+    #[error("Invalid operand")]
+    InvalidOperand,
 }

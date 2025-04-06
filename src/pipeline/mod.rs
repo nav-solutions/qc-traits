@@ -3,4 +3,3 @@ pub mod parser;
 pub mod pipeline;
 
 pub use pipeline::QcPipeline;
-

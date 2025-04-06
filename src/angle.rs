@@ -11,9 +11,7 @@ pub struct QcAngle {
 impl QcAngle {
     /// Create a [QcAngle] from value in degrees.
     pub fn from_degrees(deg: f64) -> Self {
-        Self {
-            degrees: deg,
-        }
+        Self { degrees: deg }
     }
 
     /// Create a [QcAngle] from value in radians
@@ -27,14 +25,14 @@ impl QcAngle {
 /// Formats this [QcAngle] in degrees
 impl std::fmt::Display for QcAngle {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "angle={:.3}°", self.degrees)
+        write!(f, "{:.3}°", self.degrees)
     }
 }
 
 /// Formats this [QcAngle] in radians
 impl std::fmt::LowerExp for QcAngle {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "angle={:.3}rad", self.degrees.to_radians())
+        write!(f, "{:.3}rad", self.degrees.to_radians())
     }
 }
 
@@ -42,31 +40,26 @@ impl std::str::FromStr for QcAngle {
     type Err = QcAngleParsingError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-
         let trimmed = s.trim();
-
-        let alpha_pos = trimmed.find(|p| p.is_alphabetic());
+        let alpha_pos = trimmed.find(|p: char| p.is_alphabetic());
 
         if let Some(alpha_pos) = alpha_pos {
-
-            let val = trimmed[..alpha_pos].parse::<f64>()
+            let val = trimmed[..alpha_pos]
+                .parse::<f64>()
                 .map_err(|_| QcAngleParsingError::InvalidValue)?;
 
             let unit_str = &trimmed[alpha_pos..];
-            
+
             if unit_str.contains("deg") {
                 Ok(Self::from_degrees(val))
-
             } else if unit_str.contains("rad") {
                 Ok(Self::from_radians(val))
-            
             } else {
                 Err(QcAngleParsingError::InvalidUnit)
             }
-
-
         } else {
-            let deg = trimmed.parse::<f64>()
+            let deg = trimmed
+                .parse::<f64>()
                 .map_err(|_| QcAngleParsingError::InvalidValue)?;
 
             Ok(Self::from_degrees(deg))
@@ -81,9 +74,7 @@ mod test {
 
     #[test]
     fn angle_parsing() {
-        for (value, expected) in [
-            ("10", QcAngle::from_degrees(10.0))
-        ] {
+        for (value, expected) in [("10", QcAngle::from_degrees(10.0))] {
             let angle = QcAngle::from_str(value).unwrap();
             assert_eq!(angle, expected, "Failed to parse angle from \"{}\"", value);
         }

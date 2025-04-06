@@ -1,23 +1,23 @@
 use crate::{errors::QcScopeError, QcProductType};
 
 /// [QcScope] describes part of the dataset we may focus on.
-/// 
+///
 /// ## Agency (publisher) description
-/// 
+///
 /// - "agency:$agency"
 /// - "ag:$agency"
-/// 
+///
 /// ## Operator (person) description
-/// 
+///
 /// - "operator:$operator"
 /// - "op:$operator"
-/// 
+///
 /// ## File name description
-/// 
+///
 /// - "file:$name"
-/// 
+///
 /// ## Product type description
-/// 
+///
 /// Any valid [QcProductType] description applies.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub enum QcScope {
@@ -37,7 +37,7 @@ pub enum QcScope {
 
 impl std::str::FromStr for QcScope {
     type Err = QcScopeError;
-    
+
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let trimmed = s.trim();
         let len = trimmed.len();

@@ -4,7 +4,6 @@ pub enum Token {
     Semicolon,
     Item(String),
 }
-
 pub struct Parser;
 
 impl Parser {
@@ -22,29 +21,28 @@ impl Parser {
                     }
 
                     tokens.push(Token::Colon);
-                },
-                ':' => {
+                }
+                ';' => {
                     if !buffer.is_empty() {
                         tokens.push(Token::Item(buffer.trim().to_string()));
                     }
 
                     tokens.push(Token::Semicolon);
-                },
+                }
                 '=' => {
                     if !buffer.is_empty() {
                         tokens.push(Token::Item(buffer.trim().to_string()));
                     }
 
                     tokens.push(Token::Equal);
-                },
+                }
                 c => buffer.push(c),
             }
         }
 
         tokens
-    } 
+    }
 }
-
 
 #[cfg(test)]
 mod test {
@@ -53,10 +51,7 @@ mod test {
 
     #[test]
     fn single_item_parsing() {
-
         let content = "Gal";
         let mut tokens = Parser::tokenize(content);
-
     }
-
 }

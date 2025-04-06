@@ -4,6 +4,4 @@ use crate::filter::{
 };
 
 pub enum QcOps {
-    Masking(QcMask),
-    Decimation(QcDecimation),
 }
