@@ -45,10 +45,6 @@ impl Parser {
         let mut tokens = Vec::with_capacity(3);
 
         for c in trimmed.chars() {
-            if c.is_whitespace() {
-                continue;
-            }
-
             buffer.push(c);
 
             match c {
@@ -62,12 +58,6 @@ impl Parser {
                     if buffer.contains("el") {
                         buffer.clear();
                         tokens.push(Token::Elevation);
-                    }
-                }
-                ',' => {
-                    if let Ok(parsed) = buffer.parse::<QcSelectionStepItem>() {
-                        buffer.clear();
-                        tokens.push(Token::Item(parsed));
                     }
                 }
                 _ => {
@@ -86,10 +76,10 @@ impl Parser {
         }
 
         if !buffer.is_empty() {
-            if let Ok(parsed) = buffer.parse::<QcSelectionStepItem>() {
-                tokens.push(Token::Item(parsed));
-            } else if let Ok(angle) = buffer.trim().parse::<QcAngle>() {
+            if let Ok(angle) = buffer.trim().parse::<QcAngle>() {
                 tokens.push(Token::Angle(angle))
+            } else if let Ok(parsed) = buffer.parse::<QcSelectionStepItem>() {
+                tokens.push(Token::Item(parsed));
             }
         }
 
@@ -195,18 +185,28 @@ impl std::str::FromStr for QcSelectionStep {
 #[cfg(test)]
 mod test {
     use super::{QcSelectionStep, QcSelectionStepItem, QcSelectionStepOperand};
-    use crate::prelude::{Constellation, SV};
+    use crate::prelude::{Constellation, Duration, SV};
     use std::str::FromStr;
 
     #[test]
     fn pipeline_selection_step_parsing() {
         const GPS: Constellation = Constellation::GPS;
+        let g01 = SV::new(GPS, 01);
 
         const GAL: Constellation = Constellation::Galileo;
         let e07 = SV::new(GAL, 07);
         let e10 = SV::new(GAL, 10);
 
-        for (pipeline, expected) in [
+        let dt_30s = Duration::from_seconds(30.0);
+
+        for (pipeline_str, expected) in [
+            (
+                "30 s",
+                QcSelectionStep {
+                    item: QcSelectionStepItem::from_duration(dt_30s),
+                    operand: QcSelectionStepOperand::Equals,
+                },
+            ),
             (
                 ">E10",
                 QcSelectionStep {
@@ -264,6 +264,13 @@ mod test {
                 },
             ),
             (
+                "E07,G01",
+                QcSelectionStep {
+                    item: QcSelectionStepItem::from_satellites(&[e07, g01]),
+                    operand: QcSelectionStepOperand::Equals,
+                },
+            ),
+            (
                 "el>10",
                 QcSelectionStep {
                     item: QcSelectionStepItem::from_elevation_deg(10.0),
@@ -299,6 +306,13 @@ mod test {
                 },
             ),
             (
+                " el<=12.2 rad ",
+                QcSelectionStep {
+                    item: QcSelectionStepItem::from_elevation_rad(12.2),
+                    operand: QcSelectionStepOperand::LowerEquals,
+                },
+            ),
+            (
                 " el<=12.2 deg ",
                 QcSelectionStep {
                     item: QcSelectionStepItem::from_elevation_deg(12.2),
@@ -306,14 +320,18 @@ mod test {
                 },
             ),
         ] {
-            let pipeline = QcSelectionStep::from_str(pipeline).unwrap_or_else(|e| {
+            let pipeline = QcSelectionStep::from_str(pipeline_str).unwrap_or_else(|e| {
                 panic!(
                     "Failed to parse processing pipeline step: \"{}\": {}",
-                    pipeline, e
+                    pipeline_str, e
                 )
             });
 
-            assert_eq!(pipeline, expected);
+            assert_eq!(
+                pipeline, expected,
+                "invalid value parsed from \"{}\"",
+                pipeline_str
+            );
         }
     }
 }

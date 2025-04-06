@@ -45,6 +45,7 @@ impl std::str::FromStr for QcAngle {
 
         if let Some(alpha_pos) = alpha_pos {
             let val = trimmed[..alpha_pos]
+                .trim()
                 .parse::<f64>()
                 .map_err(|_| QcAngleParsingError::InvalidValue)?;
 
@@ -74,8 +75,16 @@ mod test {
 
     #[test]
     fn angle_parsing() {
-        for (value, expected) in [("10", QcAngle::from_degrees(10.0))] {
-            let angle = QcAngle::from_str(value).unwrap();
+        for (value, expected) in [
+            ("10", QcAngle::from_degrees(10.0)),
+            ("10deg", QcAngle::from_degrees(10.0)),
+            ("10.1 deg", QcAngle::from_degrees(10.1)),
+            ("10.2rad", QcAngle::from_radians(10.2)),
+            ("10.2 rad", QcAngle::from_radians(10.2)),
+        ] {
+            let angle = QcAngle::from_str(value)
+                .unwrap_or_else(|e| panic!("Failed to parse angle from \"{}\" : {}", value, e));
+
             assert_eq!(angle, expected, "Failed to parse angle from \"{}\"", value);
         }
     }
