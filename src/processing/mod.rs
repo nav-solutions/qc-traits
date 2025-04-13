@@ -14,9 +14,12 @@ pub use decim::{Decimate, DecimationFilter, DecimationFilterType, Error as Decim
 mod split;
 pub use split::Split;
 
+mod time;
+pub use time::{TimeOffset, TimeShift};
+
 /// Preprocessing Trait is usually implemented by GNSS data
 /// to preprocess prior further analysis.
-pub trait Preprocessing: Masking + Decimate + Split {
+pub trait Preprocessing: Masking + Decimate + Split + TimeShift {
     /// Apply [Filter] algorithm on immutable dataset.
     fn filter(&self, filter: &Filter) -> Self
     where
