@@ -17,7 +17,9 @@ pub enum TimeOffsetError {
 /// be converted to another [TimeScale]
 pub trait Timeshift {
     /// [TimeScale] transposition without mutable access
-    fn time_shift(&self, time_offsets: &[TimeOffset]);
+    fn time_shift(&self, time_offsets: &[TimeOffset]) -> Self
+    where
+        Self: Sized;
 
     /// [TimeScale] transposition with mutable access
     fn time_shift_mut(&self, time_offsets: &[TimeOffset]);
