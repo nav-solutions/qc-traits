@@ -1,16 +1,10 @@
 use hifitime::{Epoch, TimeScale, Unit};
 
-/// Errors during [TimeOffset] exploitation
 #[derive(Debug)]
 pub enum TimeOffsetError {
-    /// Timescales should not be identical when defining a new [TimeOffset]!
-    IdenticalTimescales,
-    /// Epoch is not expressed in one of the two supported [TimeScale]s!
-    NotSupportedTimescale,
-    /// Epoch should be expressed in the left-hand side [TimeScale].
-    InvalidTimescale,
-    /// [TimeOffset] is outdated and should not apply (difference is too large): should be updated weekly at least!
-    OutdatedTimeOffset,
+    /// Polynomial terms can only apply for a week (at most)
+    /// and require much more recent updates in high precision applications.
+    OutdatedWeeklyPolynomials,
 }
 
 /// The [TimeShift] trait is implemented by any structure that can
@@ -22,134 +16,84 @@ pub trait Timeshift {
         Self: Sized;
 
     /// [TimeScale] transposition with mutable access
-    fn time_shift_mut(&self, time_offsets: &[TimeOffset]);
+    fn time_shift_mut(&mut self, time_offsets: &[TimeOffset]);
 }
 
-/// [TimeOffset] allows to describe the behavior of a tracked [TimeScale]
-/// with resepect to a reference [TimeScale] as typically done in [TimeScale] maintenance
-/// or monitoring. For example, |GPST-UTC| when referencing [TimeScale::GPST]
-/// to [TimeScale::UTC] timescale. It allows precise conversion between both [TimeScale]s
-/// and works both ways.
-/// The reference and conversion instants are encoded as [Epoch]s which limits their description
-/// to 1 nanosecond accuracy. The conversion methods:
-/// [Self::time_correction_nanos] and [Self::time_correction_seconds] are not limited to 1 ns.
+/// [TimeOffset] allows precise [Epoch] translation from original to another [TimeScale].
+/// For example, |[TimeScale::GPST]-[TimeScale::UTC]| when referencing or monitoring
+/// [TimeScale::GPST] against [TimeScale::UTC].
 #[derive(Copy, Clone, PartialEq)]
 pub struct TimeOffset {
-    /// Left hand side (compared) [TimeScale]
-    compared_lhs: TimeScale,
-    /// Right hand side (reference) [TimeScale]
-    reference_rhs: TimeScale,
-    /// Weekly reference time (counter, nanoseconds)
-    ref_epoch_tow_nanos: (u32, u64),
+    /// Reference [Epoch] expressed in the [TimeScale] for which the provided polynomials apply.
+    pub ref_epoch: Epoch,
     /// Polynomials (s, s.s⁻¹, s.s⁻²)
     polynomials: (f64, f64, f64),
+    /// Stored [TimeScale] for (a-b) validity checks
+    secondary_ts: TimeScale,
 }
 
 impl TimeOffset {
     /// Define a new [TimeOffset].
     /// ## Input
-    /// - ref_epoch: Reference [Epoch] expressed in left-hand side [TimeScale]
-    /// - reference_ts: [TimeScale] to which left-hand side is referenced to.
+    /// - ref_epoch: Reference [Epoch] expressed in the [TimeScale] to which the provided polynomials apply.
+    /// For example, [TimeScale::GST] polynomials as in |TimeScale::GST - TimeScale::GPST| in GST/GPST referencing.
+    /// - secondary_ts: stored [Timescale] to verify operation validity. This would be [TimeScale::GPST] in the previous example.
     /// - polynomials: for interpolation calculations
     pub fn from_reference_epoch(
         ref_epoch: Epoch,
-        reference_ts: TimeScale,
+        secondary_ts: TimeScale,
         polynomials: (f64, f64, f64),
-    ) -> Result<Self, TimeOffsetError> {
-        if ref_epoch.time_scale == reference_ts {
-            // illegal / invalid operation
-            return Err(TimeOffsetError::IdenticalTimescales);
-        }
-
-        let ref_epoch_tow_nanos = ref_epoch.to_time_of_week();
-
-        Ok(Self {
-            ref_epoch_tow_nanos,
+    ) -> Self {
+        Self {
+            ref_epoch,
             polynomials,
-            reference_rhs: reference_ts,
-            compared_lhs: ref_epoch.time_scale,
-        })
+            secondary_ts,
+        }
     }
 
-    /// Define a new [TimeOffset].
+    /// Define a new [TimeOffset] from week counter and elapsed nanoseconds within week.
     /// ## Input
-    /// - ref_epoch_tow_nanos: reference [Epoch::to_time_of_week]
-    /// expressed in left-hand side [TimeScale]
-    /// - compared_lhs: left-hand side [TimeScale]
-    /// - reference_rhs: reference [TimeScale]
+    /// - ref_epoch: Reference [Epoch] expressed in the [TimeScale] to which the provided polynomials apply.
+    /// For example, [TimeScale::GST] polynomials as in |TimeScale::GST - TimeScale::GPST| in GST/GPST referencing.
+    /// - secondary_ts: stored [Timescale] to verify operation validity. This would be [TimeScale::GPST] in the previous example.
     /// - polynomials: for interpolation calculations
-    pub fn from_reference_time_of_week(
-        ref_epoch_tow_nanos: (u32, u64),
-        compared_lhs: TimeScale,
-        reference_rhs: TimeScale,
+    pub fn from_reference_time_of_week_nanos(
+        ref_week: u32,
+        ref_tow: u64,
+        ref_timescale: TimeScale,
+        secondary_ts: TimeScale,
         polynomials: (f64, f64, f64),
-    ) -> Result<Self, TimeOffsetError> {
-        if compared_lhs == reference_rhs {
-            // illegal / invalid operation
-            return Err(TimeOffsetError::IdenticalTimescales);
-        }
+    ) -> Self {
+        let ref_epoch = Epoch::from_time_of_week(ref_week, ref_tow, ref_timescale);
 
-        Ok(Self {
-            compared_lhs,
-            reference_rhs,
-            ref_epoch_tow_nanos,
+        Self {
+            ref_epoch,
             polynomials,
-        })
+            secondary_ts,
+        }
     }
 
     /// Returns both [TimeScale]s this [TimeOffset] supports. Meaning that
     /// it allows conversion to either one.
     pub fn supported_timescales(&self) -> (TimeScale, TimeScale) {
-        (self.compared_lhs, self.reference_rhs)
+        (self.ref_epoch.time_scale, self.secondary_ts)
     }
 
-    /// Update this [TimeOffset] with new reference epoch and polynomials.
-    /// ## Input
-    /// - ref_epoch_tow_nanos: reference [Epoch::to_time_of_week] that needs to
-    /// remain expressed in left-hand side [TimeScale] for this structure to remain correct.
-    /// - polynomials: updated polynomial terms used in interpolation.
-    pub fn update_mut(&mut self, ref_epoch_tow_nanos: (u32, u64), polynomials: (f64, f64, f64)) {
-        self.ref_epoch_tow_nanos = ref_epoch_tow_nanos;
-        self.polynomials = polynomials;
-    }
-
-    /// Define a new [TimeOffset] with new reference [TimeScale], while preserving other components.
-    /// For example, this would be [TimeScale::UTC] in the |[TimeScale::GPST] - [TimeScale::UTC]| tracking.
-    /// Modifying one of the [TimeScale]s will require modification of the polynomial terms or reference epoch
-    /// for this structure to remain correct.
-    pub fn with_reference_timescale(mut self, ts: TimeScale) -> Self {
-        self.reference_rhs = ts;
+    /// Define a new [TimeOffset] with new desired reference [Epoch].
+    /// The [TimeScale] it is expressed in must remain the same, or you will to update the polynomial terms
+    /// accordingly, to continue obtaining correct results.
+    pub fn with_reference_epoch(mut self, ref_epoch: Epoch) -> Self {
+        self.ref_epoch = ref_epoch;
         self
     }
 
-    /// Define a new [TimeOffset] with new left-hand side [TimeScale], while preserving other components.
-    /// For example, this would be [TimeScale::GPST] in the |[TimeScale::GPST] - [TimeScale::UTC]| tracking.
-    /// Modifying one of the [TimeScale]s will require modification of the polynomial terms or reference epoch
-    /// for this structure to remain correct.
-    pub fn with_comparison_timescale(mut self, ts: TimeScale) -> Self {
-        self.compared_lhs = ts;
-        self
-    }
-
-    /// Define a new [TimeOffset] with new reference [Epoch::to_time_of_week] (in nanoseconds), while preserving other components.
+    /// Define a new [TimeOffset] with new desired reference [Epoch] still expressed for the previously defined [TimeScale].
+    /// defined as elapsed weeks and nanoseconds within current week. As typically used when working with GNSS receivers.
     /// This most likely should be tied to a polynoliam terms update: [Self::with_polynomials].
-    /// If new reference [Epoch] is expressed in the current left-hand side [TimeScale] the structure remains correct.
-    /// Otherwise, you should modify the left-hand side [TimeScale] with one of the prooposed methods for this structure to remain valid.
     pub fn with_reference_time_of_week_nanos(mut self, ref_epoch_tow_nanos: (u32, u64)) -> Self {
-        self.ref_epoch_tow_nanos = ref_epoch_tow_nanos;
+        let (ref_week, ref_tow) = ref_epoch_tow_nanos;
+        self.ref_epoch = Epoch::from_time_of_week(ref_week, ref_tow, self.ref_epoch.time_scale);
         self
-    }
-
-    /// Define a new [TimeOffset] with new reference [Epoch] with 1 ns precision.
-    /// This most likely should be tied to a polynoliam terms update: [Self::with_polynomials].
-    /// [Epoch] needs to be expressed in left-hand side [TimeScale] for this operation to be valid.
-    pub fn with_reference_epoch(mut self, ref_epoch: Epoch) -> Result<Self, TimeOffsetError> {
-        if ref_epoch.time_scale != self.compared_lhs {
-            return Err(TimeOffsetError::InvalidTimescale);
-        }
-
-        self.ref_epoch_tow_nanos = ref_epoch.to_time_of_week();
-        Ok(self)
     }
 
     /// Define a new [TimeOffset] with new polynomials, while preserving other components.
@@ -161,31 +105,23 @@ impl TimeOffset {
     /// Returns the total number of nanoseconds to apply to convert this [Epoch] to other [TimeScale].
     /// ## Input
     /// - t: interpolation instant expressed as [Epoch] with 1ns accuracy.
-    /// It needs to be expressed in either of [Self::supported_timescales] for this operation to be valid.
-    /// The correction is calculated for the other supported [TimeScale].
+    /// The correction is calculated using the previously latched polynomial parameters.
     pub fn time_correction_nanos(&self, t: Epoch) -> Result<f64, TimeOffsetError> {
-        if t.time_scale != self.compared_lhs && t.time_scale != self.reference_rhs {
-            return Err(TimeOffsetError::NotSupportedTimescale);
-        }
+        // express correctly in the reference Timescale
+        let t = t.to_time_scale(self.ref_epoch.time_scale);
 
         let (t_week, t_nanos) = t.to_time_of_week();
-        let (ref_week, ref_nanos) = self.ref_epoch_tow_nanos;
+        let (ref_week, ref_nanos) = self.ref_epoch.to_time_of_week();
 
-        // make sure this falls within a week duration (at most)
-        if t_week > ref_week + 1 || ref_week > t_week + 1 {
-            return Err(TimeOffsetError::OutdatedTimeOffset);
+        if t_week != ref_week {
+            return Err(TimeOffsetError::OutdatedWeeklyPolynomials);
         }
 
         let (a0, a1, a2) = self.polynomials;
         let dt_s = (t_nanos as f64 - ref_nanos as f64) * 1.0E-9;
         let dt_s = a0 + a1 * dt_s + a2 * dt_s.powi(2);
 
-        // support back & forth conversion
-        if t.time_scale == self.reference_rhs {
-            Ok(-dt_s * 1.0E9)
-        } else {
-            Ok(dt_s * 1.0E9)
-        }
+        Ok(dt_s * 1.0E9)
     }
 
     /// Returns the total number of nanoseconds to apply to convert this [Epoch] to other [TimeScale].
@@ -208,7 +144,7 @@ impl TimeOffset {
         let correction_nanos = self.time_correction_nanos(t)?;
         let corrected = t + correction_nanos * Unit::Nanosecond;
         // perform the swap & return
-        Ok(corrected.to_time_scale(self.reference_rhs))
+        Ok(corrected.to_time_scale(self.secondary_ts))
     }
 }
 
@@ -240,9 +176,6 @@ mod test {
                 let time_offset = TimeOffset::from_reference_epoch(t_ref, *ref_ts, polynomials);
 
                 if ref_ts != lhs_ts {
-                    // valid use case
-                    let time_offset = time_offset.unwrap();
-
                     ///////////////////////////////////////
                     // 1. some time LATER within that week
                     ///////////////////////////////////////
@@ -290,9 +223,6 @@ mod test {
                     // this is a simple case of a static offset
                     let dt = (converted - instant).to_seconds();
                     assert_eq!(dt, polynomials.0);
-                } else {
-                    // invalid use case
-                    assert!(time_offset.is_err());
                 }
             }
         }
@@ -321,9 +251,6 @@ mod test {
                 let time_offset = TimeOffset::from_reference_epoch(t_ref, *ref_ts, (a0, a1, a2));
 
                 if ref_ts != lhs_ts {
-                    // valid use case
-                    let time_offset = time_offset.unwrap();
-
                     // some time later within that week
                     let instant = t_ref + 1.0 * Unit::Day;
 
@@ -346,9 +273,6 @@ mod test {
                     // // and both timescales are offset by a static a0 value
                     // let dt = (converted - instant).to_seconds();
                     // assert_eq!(dt, polynomials.0);
-                } else {
-                    // invalid use case
-                    assert!(time_offset.is_err());
                 }
             }
         }
@@ -379,9 +303,6 @@ mod test {
                 let time_offset = TimeOffset::from_reference_epoch(t_ref, *ref_ts, polynomials);
 
                 if ref_ts != lhs_ts {
-                    // valid use case
-                    let time_offset = time_offset.unwrap();
-
                     // some time later within that week
                     let instant = t_ref + 1.0 * Unit::Day;
 
@@ -400,9 +321,6 @@ mod test {
                     let initial_gregorian = instant.to_gregorian_utc();
                     let converted_gregorian = converted.to_gregorian_utc();
                     assert_eq!(initial_gregorian, converted_gregorian);
-                } else {
-                    // invalid use case
-                    assert!(time_offset.is_err());
                 }
             }
         }
