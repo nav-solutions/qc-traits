@@ -212,7 +212,8 @@ impl TimeOffset {
 
 #[cfg(test)]
 mod test {
-    use crate::prelude::{Epoch, TimeOffset, TimeScale, Unit};
+    use crate::TimeOffset;
+    use hifitime::{Epoch, TimeScale, Unit};
 
     #[test]
     fn test_1ns_time_offset() {
