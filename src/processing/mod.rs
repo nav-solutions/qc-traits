@@ -15,11 +15,11 @@ mod split;
 pub use split::Split;
 
 mod time;
-pub use time::{TimeOffset, TimeShift};
+pub use time::{TimeOffset, Timeshift};
 
 /// Preprocessing Trait is usually implemented by GNSS data
 /// to preprocess prior further analysis.
-pub trait Preprocessing: Masking + Decimate + Split + TimeShift {
+pub trait Preprocessing: Masking + Decimate + Split + Timeshift {
     /// Apply [Filter] algorithm on immutable dataset.
     fn filter(&self, filter: &Filter) -> Self
     where
