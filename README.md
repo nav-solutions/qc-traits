@@ -5,6 +5,7 @@ GNSS Quality Control Traits
 [![crates.io](https://docs.rs/gnss-qc-traits/badge.svg)](https://docs.rs/gnss-qc-traits/)
 [![crates.io](https://img.shields.io/crates/d/gnss-qc-traits.svg)](https://crates.io/crates/gnss-qc-traits)
 
+[![MRSV](https://img.shields.io/badge/MSRV-1.78.0-orange?style=for-the-badge)](https://github.com/rust-lang/rust/releases/tag/1.78.0)
 [![License](https://img.shields.io/badge/license-MPL_2.0-orange?style=for-the-badge&logo=mozilla)](https://github.com/rtk-rs/qc-traits/blob/main/LICENSE)
 
 The Quality Control traits library (`gnss-qc-traits`) is a small library
