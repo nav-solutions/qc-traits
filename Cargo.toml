@@ -10,6 +10,13 @@ keywords = ["gnss", "gps", "geodesy", "geo"]
 categories = ["science", "science::geo"]
 edition = "2021"
 
+[package.metadata]
+msrv = "1.78"
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docrs", "--generate-link-to-definition"]
+
 [features]
 default = ["html"]
 
@@ -25,10 +32,6 @@ processing = [
 html = [
     "dep:maud",
 ]
-
-[package.metadata.docs.rs]
-all-features = true
-rustdoc-args = ["--cfg", "docrs", "--generate-link-to-definition"]
 
 [dependencies]
 thiserror = "2"

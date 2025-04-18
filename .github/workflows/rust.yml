@@ -15,15 +15,26 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
+    - name: Install Rust (MSRV)
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: 1.78.0
+        override: true
+        profile: minimal
+    
     - name: Build
-      run: cargo build --verbose
+      run: cargo build
+    
     - name: Test
-      run: cargo test --verbose
+      run: cargo test
+    
     - name: Build (all features)
-      run: cargo build --verbose
+      run: cargo build
+
     - name: Test (all features)
-      run: cargo test --verbose --all-features
-  
+      run: cargo test --all-features
+
   release:
     name: Release
     runs-on: ubuntu-latest
