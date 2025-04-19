@@ -24,8 +24,12 @@ impl GnssAbsoluteTime {
     /// Add a new [TimePolynomial] to this management pool.
     /// Usually right after its publication.
     pub fn add_polynomial(&mut self, polynomial: TimePolynomial) {
-        self.polynomials
-            .retain(|t| t.ref_epoch.time_scale != polynomial.ref_epoch.time_scale);
+        self.polynomials.retain(|poly| {
+            let same_ref = poly.ref_epoch.time_scale == polynomial.ref_epoch.time_scale;
+
+            let same_lhs = poly.ref_epoch.time_scale == polynomial.ref_epoch.time_scale;
+            !(same_ref && same_lhs)
+        });
 
         self.polynomials.push(polynomial);
     }
@@ -37,43 +41,25 @@ impl GnssAbsoluteTime {
             return Some(t);
         }
 
-        if let Some(polynomials) = self
+        if let Some(poly) = self
             .polynomials
             .iter()
             .find(|poly| poly.lhs_timescale == t.time_scale && poly.ref_epoch.time_scale == target)
         {
-            Some(polynomials.epoch_time_correction(true, t, target))
-        } else if let Some(polynomials) = self
+            Some(
+                t.precise_timescale_conversion(true, poly.ref_epoch, poly.polynomial, target)
+                    .unwrap(),
+            )
+        } else if let Some(poly) = self
             .polynomials
             .iter()
             .find(|poly| poly.ref_epoch.time_scale == t.time_scale && poly.lhs_timescale == target)
         {
-            Some(polynomials.epoch_time_correction(false, t, target))
+            Some(
+                t.precise_timescale_conversion(false, poly.ref_epoch, poly.polynomial, target)
+                    .unwrap(),
+            )
         } else {
-            //GPST-UTC=a
-            //UTC=GPST-a =  forward
-            //GPST=a+UTC = backward
-
-            // try to form a combination
-            for poly_1 in self.polynomials.iter() {
-                if poly_1.lhs_timescale == t.time_scale && poly_1.ref_epoch.time_scale != target {
-                    for poly_2 in self.polynomials.iter() {
-                        if poly_2.lhs_timescale != t.time_scale
-                            && poly_2.ref_epoch.time_scale == target
-                        {
-                            // GPST-UTC
-                            // GPST-GST=a1  GST-UTC=a2
-                            // GPST-GST    + GST-UTC  a1 + GST     + a2-GST
-                            let mut correction = poly_1.correction_duration(t);
-                            correction += poly_2.correction_duration(t);
-
-                            let converted = t.to_time_scale(target);
-                            return Some(converted + correction);
-                        }
-                    }
-                }
-            }
-
             None
         }
     }
