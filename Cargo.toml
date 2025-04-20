@@ -37,4 +37,4 @@ html = [
 thiserror = "2"
 maud = { version = "0.26", optional = true }
 hifitime = { git = "https://github.com/nyx-space/hifitime", branch = "master", optional = true }
-gnss-rs = { git = "https://github.com/rtk-rs//gnss", branch = "dep/hifitime", features = ["serde", "domes", "cospar"], optional = true }
+gnss-rs = { git = "https://github.com/rtk-rs/gnss", branch = "dep/hifitime", features = ["serde", "domes", "cospar"], optional = true }
