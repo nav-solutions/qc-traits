@@ -37,6 +37,11 @@ impl GnssAbsoluteTime {
 
     /// [Epoch] interpolation & correction attempt, into desired [TimeScale].
     pub fn precise_epoch_correction(&self, t: Epoch, target: TimeScale) -> Option<Epoch> {
+        if t.time_scale == target {
+            // nothing to be done!
+            return Some(t);
+        }
+
         if let Some(poly) = self
             .polynomials
             .iter()
