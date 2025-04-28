@@ -64,7 +64,7 @@ impl GnssAbsoluteTime {
             })
             .min_by_key(|poly| {
                 let transposed = t.to_time_scale(poly.lhs_timescale);
-                transposed - poly.ref_epoch
+                (transposed - poly.ref_epoch).abs()
             })
         {
             Some(
@@ -83,7 +83,7 @@ impl GnssAbsoluteTime {
             })
             .min_by_key(|poly| {
                 let transposed = t.to_time_scale(poly.lhs_timescale);
-                transposed - poly.ref_epoch
+                (transposed - poly.ref_epoch).abs()
             })
         {
             Some(
