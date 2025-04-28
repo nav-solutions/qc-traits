@@ -21,8 +21,7 @@ use super::Timeshift;
 ///    - and [GnssAbsoluteTime::outdate_weekly] to discard [TimePolynomial]s published before that week
 #[derive(Default, Clone)]
 pub struct GnssAbsoluteTime {
-    /// Internal [TimePolynomial]s
-    polynomials: Vec<TimePolynomial>,
+    pub polynomials: Vec<TimePolynomial>,
 }
 
 impl GnssAbsoluteTime {
@@ -34,25 +33,19 @@ impl GnssAbsoluteTime {
     }
 
     /// Discard [TimePolynomial]s that were published prior "now".
-    /// You must have latched newer [TimePolynomial]s with [Self::add_polynomial] for the structure to remain valid.
+    /// You must have latched newer [TimePolynomial]s for the structure to remain valid.
     pub fn outdate_past(&mut self, now: Epoch) {
         self.polynomials.retain(|poly| poly.ref_epoch > now);
     }
 
     /// Discard [TimePolynomial]s that were published during past week from "now".
-    /// You must have latched newer [TimePolynomial]s with [Self::add_polynomial] for the structure to remain valid.
+    /// You must have latched newer [TimePolynomial]s for the structure to remain valid.
     pub fn outdate_weekly(&mut self, now: Epoch) {
         let new_week = now.to_time_of_week().0;
         self.polynomials.retain(|poly| {
             let tow = poly.ref_epoch.to_time_of_week().0;
             tow >= new_week
         });
-    }
-
-    /// Add a new [TimePolynomial] to this management pool.
-    /// Usually right after its publication.
-    pub fn add_polynomial(&mut self, polynomial: TimePolynomial) {
-        self.polynomials.push(polynomial);
     }
 
     /// [Epoch] interpolation & correction attempt, into desired [TimeScale].
@@ -245,7 +238,7 @@ impl Merge for GnssAbsoluteTime {
     fn merge_mut(&mut self, rhs: &Self) -> Result<(), MergeError> {
         // latch new polynomials
         for polynomial in rhs.polynomials.iter() {
-            self.add_polynomial(*polynomial);
+            self.polynomials.push(*polynomial);
         }
         Ok(())
     }
