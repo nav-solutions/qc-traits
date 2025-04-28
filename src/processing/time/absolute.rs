@@ -3,7 +3,7 @@ use crate::{
     processing::TimePolynomial,
 };
 
-use hifitime::{Epoch, TimeScale};
+use hifitime::{Epoch, TimeScale, Unit};
 
 #[cfg(doc)]
 use super::Timeshift;
@@ -32,20 +32,17 @@ impl GnssAbsoluteTime {
         }
     }
 
-    /// Discard [TimePolynomial]s that were published prior "now".
+    /// Discard [TimePolynomial]s that were published prior proposed instant.  
     /// You must have latched newer [TimePolynomial]s for the structure to remain valid.
-    pub fn outdate_past(&mut self, now: Epoch) {
-        self.polynomials.retain(|poly| poly.ref_epoch > now);
+    pub fn outdate_past(&mut self, instant: Epoch) {
+        self.polynomials.retain(|poly| poly.ref_epoch > instant);
     }
 
-    /// Discard [TimePolynomial]s that were published during past week from "now".
+    /// Discard [TimePolynomial]s that were published 7 days prior the proposed instant.  
     /// You must have latched newer [TimePolynomial]s for the structure to remain valid.
-    pub fn outdate_weekly(&mut self, now: Epoch) {
-        let new_week = now.to_time_of_week().0;
-        self.polynomials.retain(|poly| {
-            let tow = poly.ref_epoch.to_time_of_week().0;
-            tow >= new_week
-        });
+    pub fn outdate_weekly(&mut self, instant: Epoch) {
+        let limit = instant - 7.0 * Unit::Week;
+        self.polynomials.retain(|poly| poly.ref_epoch > limit);
     }
 
     /// [Epoch] interpolation & correction attempt, into desired [TimeScale].
