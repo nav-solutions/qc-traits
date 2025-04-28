@@ -4,9 +4,9 @@ use hifitime::{Epoch, Polynomial, TimeScale};
 /// For example, |[TimeScale::GPST]-[TimeScale::UTC]| when referencing [TimeScale::GPST] to [TimeScale::UTC].
 #[derive(Copy, Clone, PartialEq)]
 pub struct TimePolynomial {
-    /// LHS [TimeScale] to which the [Polynomial] applies
+    /// LHS [TimeScale] to which [Polynomial] applies
     pub lhs_timescale: TimeScale,
-    /// RHS [TimeScale] to which the [Polynomial] applies
+    /// RHS [TimeScale] to which [Polynomial] applies
     pub rhs_timescale: TimeScale,
     /// Reference [Epoch] usually expressed in LHS [TimeScale], but we support any [TimeScale] here.
     pub ref_epoch: Epoch,
@@ -31,6 +31,20 @@ impl TimePolynomial {
             rhs_timescale,
             polynomial,
         )
+    }
+
+    /// Define new [TimePolynomial] from reference [Epoch] that must be expressed in the correct [TimeScale]
+    pub fn from_reference_epoch(
+        ref_epoch: Epoch,
+        rhs_timescale: TimeScale,
+        polynomial: Polynomial,
+    ) -> Self {
+        Self {
+            ref_epoch,
+            lhs_timescale: ref_epoch.time_scale,
+            rhs_timescale,
+            polynomial,
+        }
     }
 
     /// Define a new [TimePolynomials] from Reference [Epoch] expressed as week counter and

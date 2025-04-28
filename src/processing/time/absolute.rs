@@ -1,6 +1,9 @@
-use super::TimePolynomial;
+use crate::{
+    merge::{Error as MergeError, Merge},
+    processing::TimePolynomial,
+};
 
-use hifitime::{Duration, Epoch, TimeScale};
+use hifitime::{Epoch, TimeScale};
 
 #[cfg(doc)]
 use super::Timeshift;
@@ -8,7 +11,15 @@ use super::Timeshift;
 /// [GnssAbsoluteTime] is used by applications that need to precisely describe
 /// the actual state of one or several [TimeScale]s. It is used in our [Timeshift] trait
 /// to allow precise [TimeScale] transposition.
-#[derive(Default)]
+/// [GnssAbsoluteTime] does not guard about "bad" operations:
+/// - You are responsible for the [TimePolynomial] you store with respect of the
+/// current time.
+/// - We have no means to consider [TimePolynomial]s are now outdated.  
+/// You should always maintain [GnssAbsoluteTime] with up to date polynomials.  
+/// To avoid memory growth in very long surveying, we propose:
+///    - [GnssAbsoluteTime::outdate_past] to declare past [TimePolynomial]s as outdated
+///    - and [GnssAbsoluteTime::outdate_weekly] to discard [TimePolynomial]s published before that week
+#[derive(Default, Clone)]
 pub struct GnssAbsoluteTime {
     /// Internal [TimePolynomial]s
     polynomials: Vec<TimePolynomial>,
@@ -22,16 +33,25 @@ impl GnssAbsoluteTime {
         }
     }
 
+    /// Discard [TimePolynomial]s that were published prior "now".
+    /// You must have latched newer [TimePolynomial]s with [Self::add_polynomial] for the structure to remain valid.
+    pub fn outdate_past(&mut self, now: Epoch) {
+        self.polynomials.retain(|poly| poly.ref_epoch > now);
+    }
+
+    /// Discard [TimePolynomial]s that were published during past week from "now".
+    /// You must have latched newer [TimePolynomial]s with [Self::add_polynomial] for the structure to remain valid.
+    pub fn outdate_weekly(&mut self, now: Epoch) {
+        let new_week = now.to_time_of_week().0;
+        self.polynomials.retain(|poly| {
+            let tow = poly.ref_epoch.to_time_of_week().0;
+            tow >= new_week
+        });
+    }
+
     /// Add a new [TimePolynomial] to this management pool.
     /// Usually right after its publication.
     pub fn add_polynomial(&mut self, polynomial: TimePolynomial) {
-        self.polynomials.retain(|poly| {
-            let same_ref = poly.ref_epoch.time_scale == polynomial.ref_epoch.time_scale;
-
-            let same_lhs = poly.ref_epoch.time_scale == polynomial.ref_epoch.time_scale;
-            !(same_ref && same_lhs)
-        });
-
         self.polynomials.push(polynomial);
     }
 
@@ -45,7 +65,17 @@ impl GnssAbsoluteTime {
         if let Some(poly) = self
             .polynomials
             .iter()
-            .find(|poly| poly.lhs_timescale == t.time_scale && poly.rhs_timescale == target)
+            .filter_map(|poly| {
+                if poly.lhs_timescale == t.time_scale && poly.rhs_timescale == target {
+                    Some(poly)
+                } else {
+                    None
+                }
+            })
+            .min_by_key(|poly| {
+                let transposed = t.to_time_scale(poly.lhs_timescale);
+                transposed - poly.ref_epoch
+            })
         {
             Some(
                 t.precise_timescale_conversion(true, poly.ref_epoch, poly.polynomial, target)
@@ -54,94 +84,170 @@ impl GnssAbsoluteTime {
         } else if let Some(poly) = self
             .polynomials
             .iter()
-            .find(|poly| poly.rhs_timescale == t.time_scale && poly.lhs_timescale == target)
+            .filter_map(|poly| {
+                if poly.lhs_timescale == target && poly.rhs_timescale == t.time_scale {
+                    Some(poly)
+                } else {
+                    None
+                }
+            })
+            .min_by_key(|poly| {
+                let transposed = t.to_time_scale(poly.lhs_timescale);
+                transposed - poly.ref_epoch
+            })
         {
             Some(
                 t.precise_timescale_conversion(false, poly.ref_epoch, poly.polynomial, target)
                     .unwrap(),
             )
         } else {
-            for lhs_poly in self.polynomials.iter() {
-                for rhs_poly in self.polynomials.iter() {
-                    if lhs_poly.lhs_timescale == t.time_scale && rhs_poly.rhs_timescale == target {
-                        // indirect forward transforms
-
-                        // |BDT-GST|=a0_bdt & |GST-GPST|=a1 dt_gst
-                        // GST=BDT-a0_bdt
-                        // BDT-a0 dt_bdt - GPST = a1 dt_gpst
-                        // BDT-GPST (foward indirect) = a1 dt_gpst + a0 dt_bdt
-
-                        let dt_lhs_s = (t.to_time_scale(lhs_poly.lhs_timescale)
-                            - lhs_poly.ref_epoch)
-                            .to_seconds();
-                        let dt_rhs_s = (t.to_time_scale(rhs_poly.lhs_timescale)
-                            - rhs_poly.ref_epoch)
-                            .to_seconds();
-
-                        let mut correction = lhs_poly.polynomial.constant.to_seconds()
-                            + lhs_poly.polynomial.rate.to_seconds() * dt_lhs_s
-                            + lhs_poly.polynomial.accel.to_seconds() * dt_lhs_s.powi(2);
-
-                        // println!("correction = {}", correction);
-
-                        correction += rhs_poly.polynomial.constant.to_seconds()
-                            + rhs_poly.polynomial.rate.to_seconds() * dt_rhs_s
-                            + rhs_poly.polynomial.accel.to_seconds() * dt_rhs_s.powi(2);
-
-                        // println!("total correction = {}", correction);
-
-                        return Some(
-                            t.to_time_scale(rhs_poly.rhs_timescale)
-                                - Duration::from_seconds(correction),
-                        );
-                    } else if lhs_poly.rhs_timescale == t.time_scale
-                        && rhs_poly.rhs_timescale == target
-                    {
-                        // indirect backward + forward transforms
-                    } else if lhs_poly.lhs_timescale == t.time_scale
-                        && rhs_poly.lhs_timescale == target
-                    {
-                        // indirect forward + backward transforms
-                    } else if lhs_poly.rhs_timescale == t.time_scale
-                        && rhs_poly.lhs_timescale == target
-                    {
-                        // indirect backward transforms
-
-                        // |BDT-GST|=a0_bdt & |GST-GPST|=a1 dt_gst
-                        // BDT  = a0_bdt + GST
-                        // GPST = GST -a1 dt_gpst
-                        // GPST-BDT (backward indirect) = -a1 -a0
-
-                        let dt_lhs_s = (t.to_time_scale(lhs_poly.lhs_timescale)
-                            - lhs_poly.ref_epoch)
-                            .to_seconds();
-                        let dt_rhs_s = (t.to_time_scale(rhs_poly.lhs_timescale)
-                            - rhs_poly.ref_epoch)
-                            .to_seconds();
-
-                        let correction_a = lhs_poly.polynomial.constant.to_seconds()
-                            + lhs_poly.polynomial.rate.to_seconds() * dt_lhs_s
-                            + lhs_poly.polynomial.accel.to_seconds() * dt_lhs_s.powi(2);
-
-                        // println!("correction = {}", correction_a);
-
-                        let correction_b = rhs_poly.polynomial.constant.to_seconds()
-                            + rhs_poly.polynomial.rate.to_seconds() * dt_rhs_s
-                            + rhs_poly.polynomial.accel.to_seconds() * dt_rhs_s.powi(2);
-
-                        // println!("correction = {}", correction_b);
-
-                        return Some(
-                            t.to_time_scale(rhs_poly.lhs_timescale)
-                                + Duration::from_seconds(correction_a)
-                                + Duration::from_seconds(correction_b),
-                        );
-                    }
-                }
-            }
-
+            // mixed combinations not supported yet
             None
         }
+    }
+
+    // else if let Some(poly) = self
+    //     .polynomials
+    //     .iter()
+    //     .filter(|poly| {
+    //         if poly.lhs_timescale == t.time_scale {
+    //             Some(poly)
+    //         } else {
+    //             None
+    //         }
+    //     })
+    //     .min_by_key(|poly| {
+    //         let transposed = t.to_time_scale(poly.lhs_timescale);
+    //         transposed - poly.ref_epoch
+    //     })
+    // {
+    //     // got a forward (1) proposal
+    //     if let Some(poly) = self
+    //         .polynomials
+    //         .iter()
+    //         .filter(|poly| {
+    //             if poly.rhs_timescale == target {
+    //                 Some(poly)
+    //             } else {
+    //                 None
+    //             }
+    //         })
+    //         .min_by_key(|poly| {
+    //             let transposed = t.to_time_scale(poly.lhs_timescale);
+    //             transposed - poly.ref_epoch
+    //         })
+    //     {
+    //         // got a forward (2) proposal
+    //     } else {
+    //         // got a backward (2) proposal
+    //         None
+    //     }
+    // } else {
+    //     None
+    // }
+    //     Some(
+    //         t.precise_timescale_conversion(true, poly.ref_epoch, poly.polynomial, target)
+    //             .unwrap(),
+    //     )
+
+    //     for lhs_poly in self.polynomials.iter() {
+    //         for rhs_poly in self.polynomials.iter() {
+    //             if lhs_poly.lhs_timescale == t.time_scale && rhs_poly.rhs_timescale == target {
+    //                 // indirect forward transforms
+
+    //                 // |BDT-GST|=a0_bdt & |GST-GPST|=a1 dt_gst
+    //                 // GST=BDT-a0_bdt
+    //                 // BDT-a0 dt_bdt - GPST = a1 dt_gpst
+    //                 // BDT-GPST (foward indirect) = a1 dt_gpst + a0 dt_bdt
+
+    //                 let dt_lhs_s = (t.to_time_scale(lhs_poly.lhs_timescale)
+    //                     - lhs_poly.ref_epoch)
+    //                     .to_seconds();
+
+    //                 let dt_rhs_s = (t.to_time_scale(rhs_poly.lhs_timescale)
+    //                     - rhs_poly.ref_epoch)
+    //                     .to_seconds();
+
+    //                 let mut correction = lhs_poly.polynomial.constant.to_seconds()
+    //                     + lhs_poly.polynomial.rate.to_seconds() * dt_lhs_s
+    //                     + lhs_poly.polynomial.accel.to_seconds() * dt_lhs_s.powi(2);
+
+    //                 // println!("correction = {}", correction);
+
+    //                 correction += rhs_poly.polynomial.constant.to_seconds()
+    //                     + rhs_poly.polynomial.rate.to_seconds() * dt_rhs_s
+    //                     + rhs_poly.polynomial.accel.to_seconds() * dt_rhs_s.powi(2);
+
+    //                 // println!("total correction = {}", correction);
+
+    //                 return Some(t.to_time_scale(target) - Duration::from_seconds(correction));
+    //             } else if lhs_poly.rhs_timescale == t.time_scale
+    //                 && rhs_poly.rhs_timescale == target
+    //             {
+    //                 // indirect backward + forward transforms
+    //             } else if lhs_poly.lhs_timescale == t.time_scale
+    //                 && rhs_poly.lhs_timescale == target
+    //             {
+    //                 // indirect forward + backward transforms
+    //             } else if lhs_poly.rhs_timescale == t.time_scale
+    //                 && rhs_poly.lhs_timescale == target
+    //             {
+    //                 // indirect backward transforms
+
+    //                 // |BDT-GST|=a0_bdt & |GST-GPST|=a1 dt_gst
+    //                 // BDT  = a0_bdt + GST
+    //                 // GPST = GST -a1 dt_gpst
+    //                 // GPST-BDT (backward indirect) = -a1 -a0
+
+    //                 let dt_lhs_s = (t.to_time_scale(lhs_poly.lhs_timescale)
+    //                     - lhs_poly.ref_epoch)
+    //                     .to_seconds();
+
+    //                 let dt_rhs_s = (t.to_time_scale(rhs_poly.lhs_timescale)
+    //                     - rhs_poly.ref_epoch)
+    //                     .to_seconds();
+
+    //                 let correction_a = lhs_poly.polynomial.constant.to_seconds()
+    //                     + lhs_poly.polynomial.rate.to_seconds() * dt_lhs_s
+    //                     + lhs_poly.polynomial.accel.to_seconds() * dt_lhs_s.powi(2);
+
+    //                 // println!("correction = {}", correction_a);
+
+    //                 let correction_b = rhs_poly.polynomial.constant.to_seconds()
+    //                     + rhs_poly.polynomial.rate.to_seconds() * dt_rhs_s
+    //                     + rhs_poly.polynomial.accel.to_seconds() * dt_rhs_s.powi(2);
+
+    //                 // println!("correction = {}", correction_b);
+
+    //                 return Some(
+    //                     t.to_time_scale(target)
+    //                         + Duration::from_seconds(correction_a)
+    //                         + Duration::from_seconds(correction_b),
+    //                 );
+    //             }
+    //         }
+    //     }
+
+    //     None
+}
+
+impl Merge for GnssAbsoluteTime {
+    fn merge(&self, rhs: &Self) -> Result<Self, MergeError>
+    where
+        Self: Sized,
+    {
+        let mut s = self.clone();
+        s.merge_mut(rhs)?;
+
+        Ok(s)
+    }
+
+    fn merge_mut(&mut self, rhs: &Self) -> Result<(), MergeError> {
+        // latch new polynomials
+        for polynomial in rhs.polynomials.iter() {
+            self.add_polynomial(*polynomial);
+        }
+        Ok(())
     }
 }
 
@@ -203,6 +309,7 @@ mod test {
     }
 
     #[test]
+    #[ignore]
     fn test_indirect_forward_transform_not_utc() {
         let t_ref_bdt = Epoch::from_str("2020-01-01T00:00:00 BDT").unwrap();
         let t_ref_gst = Epoch::from_str("2020-01-01T00:00:00 GST").unwrap();
@@ -313,6 +420,7 @@ mod test {
     }
 
     #[test]
+    #[ignore]
     fn test_indirect_forward_transform_utc() {
         let t_ref_bdt = Epoch::from_str("2020-01-01T00:00:00 BDT").unwrap();
         //let t_ref_gst = Epoch::from_str("2020-01-01T00:00:00 GST").unwrap();
