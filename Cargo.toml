@@ -11,7 +11,7 @@ categories = ["science", "science::geo"]
 edition = "2021"
 
 [package.metadata]
-msrv = "1.78"
+msrv = "1.82"
 
 [package.metadata.docs.rs]
 all-features = true
