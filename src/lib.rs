@@ -13,7 +13,7 @@ mod processing;
 pub use processing::{
     Decimate, DecimationError, DecimationFilter, DecimationFilterType, Filter, FilterItem,
     MaskError, MaskFilter, MaskOperand, Masking, Preprocessing, Repair, RepairTrait, Split,
-    TimeCorrection, TimeCorrectionsDB, Timeshift,
+    TimeCorrection, TimeCorrectionError, TimeCorrectionsDB, Timeshift,
 };
 
 #[cfg(feature = "html")]
