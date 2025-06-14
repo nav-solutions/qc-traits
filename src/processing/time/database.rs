@@ -14,7 +14,7 @@ use super::Timeshift;
 /// [TimeCorrectionsDB] has no means to "check" the internal content with respect
 /// to your application, other than the possible verification of the corrections validity (in time).
 /// You are responsible of the database content with respect to the current time and keeping
-/// it up to date. To avoid memory growth in very long applications, we propose:
+/// it up to date. To avoid memory growth in long term applications, we propose:
 /// - [TimeCorrectionsDB::outdate_past] to declare past [TimePolynomial]s as outdated
 /// - and [TimeCorrectionsDB::outdate_weekly] to discard [TimePolynomial]s published before that week
 #[derive(Default, Clone)]
