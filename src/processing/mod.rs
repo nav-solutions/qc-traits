@@ -15,7 +15,7 @@ mod split;
 pub use split::Split;
 
 mod time;
-pub use time::{TimeCorrection, TimeCorrectionsDB, Timeshift};
+pub use time::{TimeCorrection, TimeCorrectionError, TimeCorrectionsDB, Timeshift};
 
 /// Preprocessing Trait is usually implemented by GNSS data
 /// to preprocess prior further analysis.
