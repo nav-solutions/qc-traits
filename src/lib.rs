@@ -12,8 +12,8 @@ mod processing;
 #[cfg(feature = "processing")]
 pub use processing::{
     Decimate, DecimationError, DecimationFilter, DecimationFilterType, Filter, FilterItem,
-    GnssAbsoluteTime, MaskError, MaskFilter, MaskOperand, Masking, Preprocessing, Repair,
-    RepairTrait, Split, TimePolynomial, Timeshift,
+    MaskError, MaskFilter, MaskOperand, Masking, Preprocessing, Repair, RepairTrait, Split,
+    TimeCorrection, TimeCorrectionsDB, Timeshift,
 };
 
 #[cfg(feature = "html")]
