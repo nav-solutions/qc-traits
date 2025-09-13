@@ -22,4 +22,4 @@ describes a filter designer and processing ops
 ## Licensing
 
 This library is part of the [NAV-SLS framework](https://github.com/nav-solutions) which
-is delivered under the [Mozilla V2 Public](https://www.mozilla.org/en-US/MPL/2.0) license.
+is licensed under [Mozilla V2 Public](https://www.mozilla.org/en-US/MPL/2.0) license.
