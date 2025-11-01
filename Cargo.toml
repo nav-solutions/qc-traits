@@ -33,8 +33,13 @@ html = [
     "dep:maud",
 ]
 
+[dependencies.gnss-rs]
+git = "https://github.com/nav-solutions/gnss"
+rev = "dc4d4c2d413a3be90a3fa08a6ab29079eec13923"
+optional = true
+features = ["std", "domes", "cospar", "sbas"]
+
 [dependencies]
 thiserror = "2"
 maud = { version = "0.26", optional = true }
 hifitime = { version = "4.1", optional = true }
-gnss-rs = { version = "2.5", features = ["serde", "domes", "cospar"], optional = true }
