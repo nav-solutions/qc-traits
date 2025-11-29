@@ -30,15 +30,20 @@ jobs:
     
     - name: Build
       run: cargo build
-    
+    - name: Build (HTML)
+      run: cargo build --features html
+    - name: Build (Processing)
+      run: cargo build --features processing
     - name: Test
       run: cargo test
-    
-    - name: Build (all features)
+    - name: Build (All)
       run: cargo build
-
-    - name: Test (all features)
+    - name: Tests
       run: cargo test --all-features
+    - name: Coding style
+      run: cargo fmt --all -- --check
+    - name: Documentation
+      run: cargo doc --all-features
 
   release:
     name: Release
