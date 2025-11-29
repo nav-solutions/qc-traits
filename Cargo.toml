@@ -35,7 +35,7 @@ html = [
 
 [dependencies.gnss-rs]
 git = "https://github.com/nav-solutions/gnss"
-rev = "dc4d4c2d413a3be90a3fa08a6ab29079eec13923"
+rev = "af691cfe4c22b4b9c952a899f6df3c77453c9c34"
 optional = true
 features = ["std", "domes", "cospar", "sbas"]
 
