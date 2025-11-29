@@ -17,17 +17,18 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v4
-
+    - name: Coding style
+      run: cargo fmt --all -- --check
+    - name: Documentation
+      run: cargo doc --all-features
     - name: Install Rust (MSRV)
       uses: actions-rs/toolchain@v1
       with:
         toolchain: 1.89.0
         override: true
         profile: minimal
-    
     - name: Build
       run: cargo build
     - name: Build (HTML)
@@ -40,10 +41,6 @@ jobs:
       run: cargo build
     - name: Tests
       run: cargo test --all-features
-    - name: Coding style
-      run: cargo fmt --all -- --check
-    - name: Documentation
-      run: cargo doc --all-features
 
   release:
     name: Release
