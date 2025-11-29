@@ -1,6 +1,8 @@
-from gnss_qc_traits import Constellation, SV, TimeScale
+from qc_traits import QcReportType
 
-def test_sv():
+def test_py():
+    summary = QcReportType.Summary
+    assert str(summary) 
     gps = Constellation.GPS
     assert "{}".format(gps), "GPS (US)"
     assert "{:x}".format(gps), "GPS" # drop country code
