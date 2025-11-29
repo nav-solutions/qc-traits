@@ -30,6 +30,7 @@ processing = [
 # Python bindings
 python = [
     "dep:pyo3",
+    "gnss-rs?/python",
     "hifitime?/python",
 ]
 
@@ -41,7 +42,7 @@ html = [
 
 [dependencies.gnss-rs]
 git = "https://github.com/nav-solutions/gnss"
-rev = "dc4d4cf302f0392e9acf3e99f180d469454f83923ab70b2d413a3be90a3fa08a6ab29079eec13923"
+rev = "a0f87f448fdb86ec84d3fdce1b86a820218f8191"
 optional = true
 features = ["std", "domes", "cospar", "sbas"]
 
