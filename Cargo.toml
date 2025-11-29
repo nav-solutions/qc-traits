@@ -27,6 +27,12 @@ processing = [
     "dep:hifitime",
 ]
 
+# Python bindings
+python = [
+    "dep:pyo3",
+    "hifitime?/python",
+]
+
 # Unlock HTML reporting
 # This is enabled by default, since HTML is our only reporting format to this day.
 html = [
@@ -35,11 +41,12 @@ html = [
 
 [dependencies.gnss-rs]
 git = "https://github.com/nav-solutions/gnss"
-rev = "dc4d4c2d413a3be90a3fa08a6ab29079eec13923"
+rev = "dc4d4cf302f0392e9acf3e99f180d469454f83923ab70b2d413a3be90a3fa08a6ab29079eec13923"
 optional = true
 features = ["std", "domes", "cospar", "sbas"]
 
 [dependencies]
 thiserror = "2"
 maud = { version = "0.26", optional = true }
-hifitime = { version = "4.1", optional = true }
+hifitime = { version = "4", optional = true }
+pyo3 = { version = "0.27", features = ["extension-module"], optional = true }

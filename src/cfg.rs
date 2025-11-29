@@ -11,16 +11,22 @@ pub enum Error {
     InvalidReportType,
 }
 
+#[cfg(feature = "python")]
+use pyo3::prelude::*;
+
 use std::fmt::Display;
 use std::str::FromStr;
 
 /// [QcReportType]
+#[cfg_attr(feature = "python", pyclass)]
+#[cfg_attr(feature = "python", pyo3(module = "gnss_qc"))]
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum QcReportType {
     /// In [Summary] mode, only the summary section
     /// of the report is to be generated. It is the lightest
     /// form we can generate.
     Summary,
+
     /// In [Full] mode, we generate the [CombinedReport] as well,
     /// which results from the consideration of all input [ProductType]s
     /// at the same time.
@@ -49,6 +55,8 @@ impl Display for QcReportType {
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]
+#[cfg_attr(feature = "python", pyclass)]
+#[cfg_attr(feature = "python", pyo3(module = "gnss_qc"))]
 pub struct QcConfig {
     #[serde(default)]
     pub report: QcReportType,
