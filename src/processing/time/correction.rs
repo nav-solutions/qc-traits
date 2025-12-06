@@ -114,7 +114,9 @@ impl TimeCorrection {
     }
 }
 
+#[cfg(feature = "python")]
 #[pymethods]
+#[cfg(feature = "python")]
 impl TimeCorrection {
     #[new]
     fn py_new(lhs: TimeScale, rhs: TimeScale, ref_epoch: Epoch, polynomial: Polynomial) -> Self {
