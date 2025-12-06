@@ -45,7 +45,7 @@ all-but-python = ["html", "processing"]
 
 [dependencies.gnss-rs]
 git = "https://github.com/nav-solutions/gnss"
-rev = "a0f87f448fdb86ec84d3fdce1b86a820218f8191"
+rev = "af691cfe4c22b4b9c952a899f6df3c77453c9c34"
 optional = true
 features = ["std", "domes", "cospar", "sbas"]
 
