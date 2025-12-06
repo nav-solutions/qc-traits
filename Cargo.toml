@@ -30,8 +30,8 @@ processing = [
 # Python bindings
 python = [
     "dep:pyo3",
-    "gnss-rs?/python",
-    "hifitime?/python",
+    "gnss-rs/python",
+    "hifitime/python",
 ]
 
 # Unlock HTML reporting
