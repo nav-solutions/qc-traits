@@ -3,11 +3,7 @@ use pyo3::prelude::*;
 use crate::processing::{TimeCorrection, TimeCorrectionsDB};
 
 use hifitime::{
-    prelude::{
-        Epoch,
-        Duration,
-        TimeScale,
-    },
+    prelude::{Duration, Epoch, TimeScale},
     Polynomial,
 };
 

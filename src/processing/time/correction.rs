@@ -30,7 +30,11 @@ pub struct TimeCorrection {
 
 impl core::fmt::Display for TimeCorrection {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        write!(f, "({}-{})={} at {}", self.lhs_timescale, self.rhs_timescale, self.polynomial, self.ref_epoch)
+        write!(
+            f,
+            "({}-{})={} at {}",
+            self.lhs_timescale, self.rhs_timescale, self.polynomial, self.ref_epoch
+        )
     }
 }
 
@@ -126,7 +130,7 @@ impl TimeCorrection {
     fn __str__(&self) -> String {
         format!("{}", self)
     }
-    
+
     fn __format__(&self, _specs: &str) -> PyResult<String> {
         Ok(format!("{}", self))
     }

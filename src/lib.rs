@@ -19,11 +19,7 @@ pub use processing::{
 };
 
 #[cfg(feature = "processing")]
-pub use hifitime::{
-    Epoch,
-    TimeScale,
-    Duration,
-};
+pub use hifitime::{Duration, Epoch, TimeScale};
 
 #[cfg(feature = "html")]
 pub use maud::{html, Markup};
