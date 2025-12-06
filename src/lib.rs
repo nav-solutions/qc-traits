@@ -27,3 +27,6 @@ pub use maud::{html, Markup};
 pub trait QcHtmlReporting {
     fn render(&self) -> Markup;
 }
+
+#[cfg(feature = "python")]
+mod python;
