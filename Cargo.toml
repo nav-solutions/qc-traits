@@ -40,12 +40,11 @@ html = [
     "dep:maud",
 ]
 
-# feature used to test the library
-all-but-python = ["html", "processing"]
+full = ["html", "processing"]
 
 [dependencies.gnss-rs]
 git = "https://github.com/nav-solutions/gnss"
-rev = "af691cfe4c22b4b9c952a899f6df3c77453c9c34"
+rev = "b8e37147026678802f449aea3e9208cba9f5140f"
 optional = true
 features = ["std", "domes", "cospar", "sbas"]
 
