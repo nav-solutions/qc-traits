@@ -42,7 +42,7 @@ jobs:
     - name: Build (Full)
       run: cargo build --features full
     - name: Tests
-      run: cargo test --features --full
+      run: cargo test --features full
 
     - name: Python dependencies
       continue-on-error: true
