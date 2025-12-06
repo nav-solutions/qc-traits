@@ -8,6 +8,9 @@ use hifitime::{Epoch, TimeScale, Unit};
 #[cfg(doc)]
 use super::Timeshift;
 
+#[cfg(feature = "python")]
+use pyo3::prelude::pyclass;
+
 /// [TimeCorrectionsDB] is a [TimeCorrection]s database used by [TimeScale]
 /// monitoring applications and applications that need exact [TimeScale] states at all times.
 /// Our [Timeshift] trait uses it in the precise conversion method.
@@ -18,6 +21,8 @@ use super::Timeshift;
 /// - [TimeCorrectionsDB::outdate_past] to declare past [TimePolynomial]s as outdated
 /// - and [TimeCorrectionsDB::outdate_weekly] to discard [TimePolynomial]s published before that week
 #[derive(Default, Clone)]
+#[cfg_attr(feature = "python", pyclass)]
+#[cfg_attr(feature = "python", pyo3(module = "qc_traits"))]
 pub struct TimeCorrectionsDB {
     /// When strict validity is asserted, we will respect
     /// the corrections validity strictly. Otherwise, the last

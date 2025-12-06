@@ -9,7 +9,7 @@ pub use merge::{Error as MergeError, Merge};
 
 #[cfg(feature = "processing")]
 #[cfg_attr(docsrs, doc(cfg(feature = "processing")))]
-mod processing;
+pub(crate) mod processing;
 
 #[cfg(feature = "processing")]
 pub use processing::{

@@ -1,4 +1,4 @@
-from qc_traits import *
+from qc_traits import TimeCorrection, TimeCorrectionDB
 
 def test_py():
-    pass
+    tc = TimeCorrection
