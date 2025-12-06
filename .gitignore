@@ -15,3 +15,5 @@ Cargo.lock
 
 # python
 *.pyc
+*.swp
+*.swo

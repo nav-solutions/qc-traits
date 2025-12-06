@@ -41,6 +41,8 @@ jobs:
       run: cargo build --features python
     - name: Build (Full)
       run: cargo build --features full
+    - name: Build (All Features)
+      run: cargo build --all-features
     - name: Tests
       run: cargo test --features full
 

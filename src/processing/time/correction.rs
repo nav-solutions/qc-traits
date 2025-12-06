@@ -1,8 +1,13 @@
 use hifitime::{Duration, Epoch, Polynomial, TimeScale};
 
+#[cfg(feature = "python")]
+use pyo3::prelude::pyclass;
+
 /// [TimeCorrection] allows precise [Epoch] translation to another [TimeScale].
 /// For example, |[TimeScale::GPST]-[TimeScale::UTC]| when referencing [TimeScale::GPST] to [TimeScale::UTC].
 #[derive(Copy, Clone, PartialEq)]
+#[cfg_attr(feature = "python", pyclass)]
+#[cfg_attr(feature = "python", pyo3(module = "qc_traits"))]
 pub struct TimeCorrection {
     /// LHS [TimeScale] to which [Polynomial] applies
     pub lhs_timescale: TimeScale,
