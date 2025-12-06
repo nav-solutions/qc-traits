@@ -18,6 +18,13 @@ pub use processing::{
     TimeCorrection, TimeCorrectionError, TimeCorrectionsDB, Timeshift,
 };
 
+#[cfg(feature = "processing")]
+pub use hifitime::{
+    Epoch,
+    TimeScale,
+    Duration,
+};
+
 #[cfg(feature = "html")]
 pub use maud::{html, Markup};
 
