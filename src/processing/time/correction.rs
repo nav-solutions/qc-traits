@@ -1,8 +1,16 @@
 use hifitime::{Duration, Epoch, Polynomial, TimeScale};
 
+#[cfg(feature = "python")]
+use pyo3::prelude::pyclass;
+
+#[cfg(feature = "python")]
+use pyo3::{pymethods, PyResult};
+
 /// [TimeCorrection] allows precise [Epoch] translation to another [TimeScale].
 /// For example, |[TimeScale::GPST]-[TimeScale::UTC]| when referencing [TimeScale::GPST] to [TimeScale::UTC].
 #[derive(Copy, Clone, PartialEq)]
+#[cfg_attr(feature = "python", pyclass)]
+#[cfg_attr(feature = "python", pyo3(module = "qc_traits"))]
 pub struct TimeCorrection {
     /// LHS [TimeScale] to which [Polynomial] applies
     pub lhs_timescale: TimeScale,
@@ -18,6 +26,16 @@ pub struct TimeCorrection {
 
     /// [Polynomial]
     pub polynomial: Polynomial,
+}
+
+impl core::fmt::Display for TimeCorrection {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        write!(
+            f,
+            "({}-{})={} at {}",
+            self.lhs_timescale, self.rhs_timescale, self.polynomial, self.ref_epoch
+        )
+    }
 }
 
 impl TimeCorrection {
@@ -93,5 +111,29 @@ impl TimeCorrection {
     /// Returns last [Epoch] for which this [TimeCorrection] should apply.
     pub fn validity_period_end(&self) -> Epoch {
         self.ref_epoch + self.validity_period
+    }
+}
+
+#[cfg(feature = "python")]
+#[pymethods]
+#[cfg(feature = "python")]
+impl TimeCorrection {
+    #[new]
+    fn py_new(lhs: TimeScale, rhs: TimeScale, ref_epoch: Epoch, polynomial: Polynomial) -> Self {
+        Self {
+            lhs_timescale: lhs,
+            rhs_timescale: rhs,
+            ref_epoch,
+            validity_period: Default::default(),
+            polynomial,
+        }
+    }
+
+    fn __str__(&self) -> String {
+        format!("{}", self)
+    }
+
+    fn __format__(&self, _specs: &str) -> PyResult<String> {
+        Ok(format!("{}", self))
     }
 }

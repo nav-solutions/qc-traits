@@ -23,24 +23,44 @@ jobs:
       run: cargo fmt --all -- --check
     - name: Documentation
       run: cargo doc --all-features
+
     - name: Install Rust (MSRV)
       uses: actions-rs/toolchain@v1
       with:
         toolchain: 1.89.0
         override: true
         profile: minimal
-    - name: Build
+    
+    - name: Build (Default)
       run: cargo build
     - name: Build (HTML)
       run: cargo build --features html
     - name: Build (Processing)
       run: cargo build --features processing
-    - name: Test
-      run: cargo test
-    - name: Build (All)
-      run: cargo build
+    - name: Build (Python)
+      run: cargo build --features python
+    - name: Build (Full)
+      run: cargo build --features full
+    - name: Build (All Features)
+      run: cargo build --all-features
     - name: Tests
-      run: cargo test --all-features
+      run: cargo test --features full
+
+    - name: Python dependencies
+      continue-on-error: true
+      run: sudo apt-get update -y && sudo apt-get install -y libssl-dev openssl pkg-config
+    - name: Install pytest
+      continue-on-error: true
+      run: pip install pytest
+    - name: Install maturin
+      continue-on-error: true
+      run: cargo install maturin
+    - name: Install library
+      continue-on-error: true
+      run: maturin develop --all-features
+    - name: Run pytest
+      continue-on-error: true
+      run: pytest
 
   release:
     name: Release

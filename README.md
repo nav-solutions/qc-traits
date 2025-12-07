@@ -20,12 +20,30 @@ and this core library.
 - `html`: HTML rendering
 - `processing`: advanced processing ops
 
+## Features
+
+- `html`: HTML conversions trait
+- `processing`: advanced processing traits
+- `python`: python bindings
+
 ## Existing Modules
 
 - html: HTML report rendition
 - merge: describes how we stack data into an already existing context
 - processing: available on crate feature only,
 describes a filter designer and processing ops
+
+## Python bindings
+
+Install with maturin
+
+```bash
+maturin develop # local install
+```
+
+```python
+# TODO
+```
 
 ## Licensing
 

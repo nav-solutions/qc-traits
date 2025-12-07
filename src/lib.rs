@@ -9,7 +9,7 @@ pub use merge::{Error as MergeError, Merge};
 
 #[cfg(feature = "processing")]
 #[cfg_attr(docsrs, doc(cfg(feature = "processing")))]
-mod processing;
+pub(crate) mod processing;
 
 #[cfg(feature = "processing")]
 pub use processing::{
@@ -17,6 +17,9 @@ pub use processing::{
     MaskError, MaskFilter, MaskOperand, Masking, Preprocessing, Repair, RepairTrait, Split,
     TimeCorrection, TimeCorrectionError, TimeCorrectionsDB, Timeshift,
 };
+
+#[cfg(feature = "processing")]
+pub use hifitime::{Duration, Epoch, TimeScale};
 
 #[cfg(feature = "html")]
 pub use maud::{html, Markup};
@@ -27,3 +30,6 @@ pub use maud::{html, Markup};
 pub trait QcHtmlReporting {
     fn render(&self) -> Markup;
 }
+
+#[cfg(feature = "python")]
+mod python;
