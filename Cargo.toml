@@ -52,5 +52,5 @@ features = ["std", "domes", "cospar", "sbas"]
 [dependencies]
 thiserror = "2"
 maud = { version = "0.26", optional = true }
-hifitime = { version = "4", optional = true }
 pyo3 = { version = "0.27", features = ["extension-module"], optional = true }
+hifitime = { git = "https://github.com/nyx-space/hifitime", rev = "501f3a012c60d3ca26446fc37270adb8782bfd5b", optional = true }
