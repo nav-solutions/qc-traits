@@ -45,7 +45,7 @@ full = ["html", "processing"]
 
 [dependencies.gnss-rs]
 git = "https://github.com/nav-solutions/gnss"
-rev = "b8e37147026678802f449aea3e9208cba9f5140f"
+rev = "83b2b9397d05a59a9d06b0ddf1fab73c7f1ab1c1"
 optional = true
 features = ["std", "domes", "cospar", "sbas"]
 
@@ -53,4 +53,4 @@ features = ["std", "domes", "cospar", "sbas"]
 thiserror = "2"
 maud = { version = "0.26", optional = true }
 pyo3 = { version = "0.27", features = ["extension-module"], optional = true }
-hifitime = { git = "https://github.com/nyx-space/hifitime", rev = "501f3a012c60d3ca26446fc37270adb8782bfd5b", optional = true }
+hifitime = { version = "4.2", optional = true }
