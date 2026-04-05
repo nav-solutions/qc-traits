@@ -1,20 +1,18 @@
-//! Processing toolkit, including filter designer.
+//! Processing toolkit, defines sampling analysis and a filter designer.
 use std::str::FromStr;
 use thiserror::Error;
 
-mod item;
-pub use item::{FilterItem, ItemError};
-
-mod mask;
-pub use mask::{Error as MaskError, MaskFilter, MaskOperand, Masking};
-
 mod decim;
-pub use decim::{Decimate, DecimationFilter, DecimationFilterType, Error as DecimationError};
-
+mod item;
+mod mask;
+mod sampling;
 mod split;
-pub use split::Split;
-
 mod time;
+
+pub use decim::{Decimate, DecimationFilter, DecimationFilterType, Error as DecimationError};
+pub use item::{FilterItem, ItemError};
+pub use mask::{Error as MaskError, MaskFilter, MaskOperand, Masking};
+pub use split::Split;
 pub use time::{TimeCorrection, TimeCorrectionError, TimeCorrectionsDB, Timeshift};
 
 /// Preprocessing Trait is usually implemented by GNSS data
