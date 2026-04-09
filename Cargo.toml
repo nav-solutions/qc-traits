@@ -44,8 +44,7 @@ html = [
 full = ["html", "processing"]
 
 [dependencies.gnss-rs]
-git = "https://github.com/nav-solutions/gnss"
-rev = "83b2b9397d05a59a9d06b0ddf1fab73c7f1ab1c1"
+version = "2.6"
 optional = true
 features = ["std", "domes", "cospar", "sbas"]
 
