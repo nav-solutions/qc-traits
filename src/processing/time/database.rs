@@ -321,13 +321,17 @@ mod test {
         // Random date in UTC
         let t_utc = Epoch::from_str("2020-01-01T00:00:10 UTC").unwrap();
 
-        assert!(database
-            .precise_epoch_correction(t_utc, TimeScale::GST)
-            .is_none());
+        assert!(
+            database
+                .precise_epoch_correction(t_utc, TimeScale::GST)
+                .is_none()
+        );
 
-        assert!(database
-            .precise_epoch_correction(t_utc, TimeScale::GPST)
-            .is_none());
+        assert!(
+            database
+                .precise_epoch_correction(t_utc, TimeScale::GPST)
+                .is_none()
+        );
     }
 
     #[test]

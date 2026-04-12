@@ -6,7 +6,7 @@ GNSS Generic QC Traits
 [![crates.io](https://img.shields.io/crates/d/gnss-qc-traits.svg)](https://crates.io/crates/gnss-qc-traits)
 [![discord server](https://img.shields.io/discord/1342922474110586910?logo=discord)](https://discord.gg/EqhEBXBmJh)
 
-[![MRSV](https://img.shields.io/badge/MSRV-1.82.0-orange?style=for-the-badge)](https://github.com/rust-lang/rust/releases/tag/1.82.0)
+[![MRSV](https://img.shields.io/badge/MSRV-1.85.0-orange?style=for-the-badge)](https://github.com/rust-lang/rust/releases/tag/1.85.0)
 [![License](https://img.shields.io/badge/license-MPL_2.0-orange?style=for-the-badge&logo=mozilla)](https://github.com/nav-solutions/qc-traits/blob/main/LICENSE)
 
 This is our core QC (Qualicy Check) library, used by all our libraries and enabling
