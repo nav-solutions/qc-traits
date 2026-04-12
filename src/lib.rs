@@ -22,7 +22,7 @@ pub use processing::{
 pub use hifitime::{Duration, Epoch, TimeScale};
 
 #[cfg(feature = "html")]
-pub use maud::{html, Markup};
+pub use maud::{Markup, html};
 
 /// HTML reporting
 #[cfg(feature = "html")]

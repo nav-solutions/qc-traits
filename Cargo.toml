@@ -8,10 +8,10 @@ homepage = "https://github.com/nav-solutions"
 repository = "https://github.com/nav-solutions/qc-traits"
 keywords = ["gnss", "gps", "geodesy", "geo"]
 categories = ["science", "science::geo"]
-edition = "2021"
+edition = "2024"
 
 [package.metadata]
-msrv = "1.82"
+msrv = "1.85"
 
 [package.metadata.docs.rs]
 all-features = true
@@ -45,7 +45,7 @@ full = ["html", "processing"]
 
 [dependencies.gnss-rs]
 git = "https://github.com/nav-solutions/gnss"
-rev = "9b9c18f60cf60045c4b702a411377469f9962e6"
+rev = "9b9c18f60cf60045c4b702a411377469f9962e62"
 optional = true
 features = ["std", "domes", "cospar", "sbas"]
 

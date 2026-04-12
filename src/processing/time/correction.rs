@@ -4,7 +4,7 @@ use hifitime::{Duration, Epoch, Polynomial, TimeScale};
 use pyo3::prelude::pyclass;
 
 #[cfg(feature = "python")]
-use pyo3::{pymethods, PyResult};
+use pyo3::{PyResult, pymethods};
 
 /// [TimeCorrection] allows precise [Epoch] translation to another [TimeScale].
 /// For example, |[TimeScale::GPST]-[TimeScale::UTC]| when referencing [TimeScale::GPST] to [TimeScale::UTC].
