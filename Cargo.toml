@@ -1,6 +1,6 @@
 [package]
 name = "gnss-qc-traits"
-version = "0.5.0"
+version = "0.6.0"
 license = "MPL-2.0"
 authors = ["Guillaume W. Bres <guillaume.bressaix@gmail.com>"]
 description = "GNSS Quality Control traits"
@@ -52,4 +52,4 @@ features = ["std", "domes", "cospar", "sbas"]
 thiserror = "2"
 maud = { version = "0.26", optional = true }
 pyo3 = { version = "0.27", features = ["extension-module"], optional = true }
-hifitime = { version = "4.2", optional = true }
+hifitime = { version = "4", optional = true }
